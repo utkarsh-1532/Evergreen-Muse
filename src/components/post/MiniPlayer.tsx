@@ -6,6 +6,7 @@ import { Play, Pause, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mediaEmitter } from '@/lib/media-emitter';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface MiniPlayerProps {
   songTitle: string;
@@ -20,7 +21,6 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Effect to pause this player if another one starts
   useEffect(() => {
     const handleOtherAudioPlay = (playingUrl: string) => {
         if (audioRef.current && playingUrl !== audioPreviewUrl) {
@@ -35,7 +35,6 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     };
   }, [audioPreviewUrl]);
 
-  // Effect to set up and tear down the audio element and its listeners
   useEffect(() => {
     if (!audioPreviewUrl) return;
     
@@ -54,6 +53,7 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     const onEnded = () => {
       setIsLoading(false);
       setIsPlaying(false);
+      audio.currentTime = 0;
     };
     const onWaiting = () => {
       setIsLoading(true);
@@ -75,10 +75,9 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
 
   const handlePlayClick = async () => {
     if (audioRef.current) {
-      setIsLoading(true); // Show loading indicator immediately
+      setIsLoading(true);
       try {
         await audioRef.current.play();
-        // onPlaying event will handle setting isLoading and isPlaying state
       } catch (error) {
         console.error("Audio playback failed:", error);
         setIsLoading(false);
@@ -98,28 +97,33 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     }
   };
   
-
   return (
-    <div className="flex items-center gap-4 rounded-md border p-4">
-      <div className="relative h-16 w-16 shrink-0">
-        <Image src={albumArtUrl} alt={songTitle} fill className="rounded-md object-cover" />
-      </div>
+    <div className="flex items-center gap-3 rounded-full border p-2 bg-background/80 backdrop-blur-sm shadow-sm">
+      <Image src={albumArtUrl} alt={songTitle} width={48} height={48} className="rounded-full object-cover aspect-square" />
+      
       <div className="flex-1 min-w-0">
-        <p className="font-semibold truncate">{songTitle}</p>
-        <p className="text-sm text-muted-foreground truncate">{artistName}</p>
+        <p className="font-semibold truncate text-sm">{songTitle}</p>
+        <p className="text-xs text-muted-foreground truncate">{artistName}</p>
       </div>
       
+      <div className={cn("flex items-center justify-center gap-0.5 h-4 w-5", !isPlaying && "opacity-50")}>
+        <span className={cn("w-1 h-full bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.3s]")} />
+        <span className={cn("w-1 h-2/3 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.1s]")} />
+        <span className={cn("w-1 h-full bg-primary rounded-full", isPlaying && "animate-pulse")} />
+        <span className={cn("w-1 h-1/2 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.2s]")} />
+      </div>
+
       {isLoading ? (
-        <Button variant="ghost" size="icon" className="rounded-full w-12 h-12" disabled>
-          <Loader2 className="h-6 w-6 animate-spin" />
+        <Button variant="ghost" size="icon" className="rounded-full w-10 h-10" disabled>
+          <Loader2 className="h-5 w-5 animate-spin" />
         </Button>
       ) : isPlaying ? (
-        <Button variant="ghost" size="icon" onClick={handlePauseClick} className="rounded-full w-12 h-12">
-          <Pause className="h-6 w-6" />
+        <Button variant="ghost" size="icon" onClick={handlePauseClick} className="rounded-full w-10 h-10">
+          <Pause className="h-5 w-5" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" onClick={handlePlayClick} className="rounded-full w-12 h-12">
-          <Play className="h-6 w-6" />
+        <Button variant="ghost" size="icon" onClick={handlePlayClick} className="rounded-full w-10 h-10">
+          <Play className="h-5 w-5" />
         </Button>
       )}
     </div>

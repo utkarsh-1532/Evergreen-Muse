@@ -87,11 +87,6 @@
           "type": "string",
           "description": "Caption for the image."
         },
-        "imagePosition": {
-          "type": "string",
-          "description": "Vertical alignment of the image within its frame.",
-          "enum": ["top", "center", "bottom"]
-        },
         "songTitle": {
           "type": "string",
           "description": "Title of the song associated with the post."

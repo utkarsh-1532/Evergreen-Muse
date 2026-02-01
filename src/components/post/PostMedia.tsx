@@ -18,11 +18,7 @@ export const PostMedia = ({ post }: PostMediaProps) => {
                             src={post.imageUrl} 
                             alt={post.imageCaption || 'Post image'} 
                             fill 
-                            className={cn("object-cover", {
-                                'object-top': post.imagePosition === 'top',
-                                'object-center': !post.imagePosition || post.imagePosition === 'center',
-                                'object-bottom': post.imagePosition === 'bottom',
-                            })}
+                            className="object-cover"
                         />
                     </div>
                     {post.imageCaption && <p className="text-sm text-muted-foreground italic text-center">{post.imageCaption}</p>}

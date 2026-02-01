@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,11 +32,10 @@ import { Loader2, Plus, Type, Image as ImageIcon, Music, Search, X } from 'lucid
 import { Post } from '@/lib/firebase/types';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { uploadImageWithProgress } from '@/lib/firebase/storage';
-import { compressImage } from '@/lib/image-compression';
 import { Progress } from '@/components/ui/progress';
-import Image from 'next/image';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { cn } from '@/lib/utils';
+import { Slider } from '@/components/ui/slider';
+import Cropper, { Area } from 'react-easy-crop';
+import getCroppedImg from '@/lib/canvasUtils';
 
 // Schemas for each post type
 const textPostSchema = z.object({
@@ -50,7 +49,6 @@ const imagePostSchema = z.object({
   file: z.instanceof(File).refine((file) => file.size > 0, 'Please select an image.'),
   text: z.string().max(2200).optional(),
   imageCaption: z.string().max(200).optional(),
-  imagePosition: z.enum(['top', 'center', 'bottom']).default('center'),
 });
 
 const songPostSchema = z.object({
@@ -94,6 +92,10 @@ export function CreatePostDialog() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<ItunesResult[]>([]);
@@ -104,9 +106,11 @@ export function CreatePostDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: { postType: 'text', text: '' },
   });
-  
-  const imagePosition = form.watch('imagePosition' as any);
 
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+  
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -143,10 +147,9 @@ export function CreatePostDialog() {
     setActiveTab(tab);
     form.reset();
     form.setValue('postType', tab);
-     if (tab === 'image') {
-      form.setValue('imagePosition' as any, 'center');
-    }
     setImagePreview(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
     setSearchTerm('');
     setSearchResults([]);
     setIsSongSelected(false);
@@ -172,6 +175,8 @@ export function CreatePostDialog() {
     if (fileInputRef.current) {
         fileInputRef.current.value = '';
     }
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
   };
   
   const selectSong = (song: ItunesResult) => {
@@ -207,25 +212,30 @@ export function CreatePostDialog() {
           postData.text = values.text;
           break;
         case 'image':
+          if (!imagePreview || !croppedAreaPixels) {
+            throw new Error('Image preview or crop data is missing.');
+          }
+
           setIsUploading(true);
           setUploadProgress(0);
           
           toast({
-            title: 'Compressing image...',
+            title: 'Cropping image...',
             description: 'Getting your image ready for upload.',
           });
-          const compressedFile = await compressImage(values.file, {
-            maxWidth: 1920,
-            quality: 0.8,
-          });
 
+          const croppedImageFile = await getCroppedImg(imagePreview, croppedAreaPixels);
+          if (!croppedImageFile) {
+            throw new Error('Failed to crop image.');
+          }
+          
           toast({
             title: 'Uploading image...',
             description: 'Please wait, this may take a moment.',
           });
           const imageUrl = await uploadImageWithProgress(
             storage, 
-            compressedFile, 
+            croppedImageFile, 
             user.uid,
             (progress) => setUploadProgress(progress)
           );
@@ -233,7 +243,6 @@ export function CreatePostDialog() {
           postData.imageUrl = imageUrl;
           postData.imageCaption = values.imageCaption;
           postData.text = values.text || '';
-          postData.imagePosition = values.imagePosition;
           break;
         case 'song':
           postData.songTitle = values.songTitle;
@@ -312,27 +321,31 @@ export function CreatePostDialog() {
                                                   >
                                                       <ImageIcon className="w-12 h-12" />
                                                       <p className="mt-2 text-sm font-medium">Click to upload</p>
-                                                      <p className="text-xs">4:5 aspect ratio recommended</p>
+                                                      <p className="text-xs">Image will be cropped to 4:5</p>
                                                   </label>
                                               ) : (
-                                                  <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5]">
-                                                      <Image src={imagePreview} alt="Image preview" fill className={cn("object-cover", {
-                                                          'object-top': imagePosition === 'top',
-                                                          'object-center': imagePosition === 'center',
-                                                          'object-bottom': imagePosition === 'bottom',
-                                                      })} />
+                                                  <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5] bg-muted">
+                                                      <Cropper
+                                                          image={imagePreview}
+                                                          crop={crop}
+                                                          zoom={zoom}
+                                                          aspect={4 / 5}
+                                                          onCropChange={setCrop}
+                                                          onZoomChange={setZoom}
+                                                          onCropComplete={onCropComplete}
+                                                          />
                                                       <Button
                                                           type="button"
                                                           variant="destructive"
                                                           size="icon"
-                                                          className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50"
+                                                          className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50 z-10"
                                                           onClick={handleRemoveImage}
                                                           disabled={isUploading || loading}
                                                       >
                                                           <X className="w-4 h-4" />
                                                       </Button>
                                                       {isUploading && (
-                                                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                                                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20">
                                                               <Progress value={uploadProgress} className="w-1/2" />
                                                               <p className="mt-2 text-sm font-medium text-primary-foreground">{Math.round(uploadProgress)}% uploaded</p>
                                                           </div>
@@ -355,36 +368,17 @@ export function CreatePostDialog() {
                               )}
                           />
                           {imagePreview && (
-                               <FormField
-                                  control={form.control}
-                                  name="imagePosition"
-                                  render={({ field }) => (
-                                  <FormItem>
-                                      <FormLabel>Image Framing</FormLabel>
-                                      <FormControl>
-                                          <RadioGroup
-                                              onValueChange={field.onChange}
-                                              defaultValue={field.value}
-                                              className="flex items-center justify-center gap-4 pt-2 border rounded-md p-2"
-                                              >
-                                              <FormItem className="flex items-center space-x-2">
-                                                  <RadioGroupItem value="top" id="pos-top" />
-                                                  <FormLabel htmlFor="pos-top" className="cursor-pointer">Top</FormLabel>
-                                              </FormItem>
-                                              <FormItem className="flex items-center space-x-2">
-                                                  <RadioGroupItem value="center" id="pos-center" />
-                                                  <FormLabel htmlFor="pos-center" className="cursor-pointer">Center</FormLabel>
-                                              </FormItem>
-                                              <FormItem className="flex items-center space-x-2">
-                                                  <RadioGroupItem value="bottom" id="pos-bottom" />
-                                                  <FormLabel htmlFor="pos-bottom" className="cursor-pointer">Bottom</FormLabel>
-                                              </FormItem>
-                                          </RadioGroup>
-                                      </FormControl>
-                                      <FormMessage />
-                                  </FormItem>
-                                  )}
-                              />
+                               <FormItem>
+                                    <FormLabel>Zoom</FormLabel>
+                                    <Slider
+                                        value={[zoom]}
+                                        min={1}
+                                        max={3}
+                                        step={0.1}
+                                        onValueChange={(vals) => setZoom(vals[0])}
+                                        disabled={isUploading || loading}
+                                    />
+                               </FormItem>
                           )}
                       </div>
                       <div className="space-y-4">
@@ -431,7 +425,7 @@ export function CreatePostDialog() {
                       <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg">
                         {searchResults.map((song) => (
                           <button key={song.trackId} type="button" onClick={() => selectSong(song)} className="w-full text-left p-2 hover:bg-accent flex items-center gap-3">
-                            <Image src={song.artworkUrl100} alt={song.trackName} width={40} height={40} className="rounded-sm" />
+                            <img src={song.artworkUrl100} alt={song.trackName} width={40} height={40} className="rounded-sm" />
                             <div>
                               <p className="font-medium text-sm">{song.trackName}</p>
                               <p className="text-xs text-muted-foreground">{song.artistName}</p>
