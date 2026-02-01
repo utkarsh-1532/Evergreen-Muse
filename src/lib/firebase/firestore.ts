@@ -11,6 +11,7 @@ import {
   Firestore,
   updateDoc,
   collection,
+  deleteDoc,
 } from 'firebase/firestore';
 import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -18,6 +19,8 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Post, UserProfile } from './types';
 import { POSTS_COLLECTION } from '@/lib/constants';
+import { deleteObject, ref as storageRef } from 'firebase/storage';
+import type { Storage } from 'firebase/storage';
 
 export function createProfile(
   db: Firestore,
@@ -88,4 +91,31 @@ export function createPost(
   };
 
   addDocumentNonBlocking(postsCollectionRef, newPostData);
+}
+
+export async function deletePost(
+  db: Firestore,
+  storage: Storage,
+  postId: string,
+  imageUrl?: string
+): Promise<void> {
+  if (!postId) {
+    throw new Error('Post ID is required to delete a post.');
+  }
+
+  // First, try to delete the image from Storage if it exists
+  if (imageUrl) {
+    try {
+      const imageRef = storageRef(storage, imageUrl);
+      await deleteObject(imageRef);
+    } catch (error: any) {
+      // Log the error but don't block post deletion
+      // It's possible the file doesn't exist or permissions failed
+      console.warn(`Failed to delete image ${imageUrl}:`, error);
+    }
+  }
+
+  // Then, delete the post document from Firestore
+  const postRef = doc(db, POSTS_COLLECTION, postId);
+  await deleteDoc(postRef);
 }

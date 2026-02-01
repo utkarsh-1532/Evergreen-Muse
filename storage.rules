@@ -15,6 +15,9 @@ service firebase.storage {
                     && request.auth.uid == userId
                     && request.resource.size < 20 * 1024 * 1024
                     && request.resource.contentType.matches('image/.*');
+
+      // The owner can delete their own image
+      allow delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
