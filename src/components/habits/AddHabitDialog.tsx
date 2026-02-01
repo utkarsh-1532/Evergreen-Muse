@@ -65,12 +65,12 @@ export function AddHabitDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="fixed bottom-24 right-6 h-14 w-14 rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-200 flex items-center justify-center hover:scale-110 transition-transform">
+        <button className="fixed bottom-24 right-6 h-14 w-14 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white shadow-lg shadow-emerald-200 dark:shadow-emerald-900/80 flex items-center justify-center hover:scale-110 transition-transform">
           <Plus className="h-7 w-7" />
           <span className="sr-only">Add Habit</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="bg-white/80 dark:bg-black/80 backdrop-blur-lg border-white/20">
+      <DialogContent className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-lg border-gray-200 dark:border-zinc-700">
         <DialogHeader>
           <DialogTitle>What do you want to achieve?</DialogTitle>
           <DialogDescription>Add a new daily habit to your list.</DialogDescription>

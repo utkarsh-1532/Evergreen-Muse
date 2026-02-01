@@ -59,7 +59,7 @@ export default function HabitsPage() {
   }
 
   return (
-    <div className="h-full bg-gray-50/50">
+    <div className="h-full bg-gray-50/50 dark:bg-zinc-950">
       {/* The Canopy (Header) */}
       <HabitProgress 
         username={profile?.username} 

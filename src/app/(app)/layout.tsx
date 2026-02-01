@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
@@ -118,14 +119,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
-              {user.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
-              <AvatarFallback>{getInitials(profile?.username || user.email)}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-sm">
-                <span className="font-medium text-foreground">{profile?.username || user.email}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                {user.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
+                <AvatarFallback>{getInitials(profile?.username || user.email)}</AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col text-sm">
+                  <span className="font-medium text-foreground">{profile?.username || user.email}</span>
+              </div>
             </div>
+            <ThemeToggle />
           </div>
           <SidebarMenu>
             <SidebarMenuItem>

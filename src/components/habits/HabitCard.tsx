@@ -25,14 +25,14 @@ export function HabitCard({ habit }: HabitCardProps) {
   return (
     <div
       className={cn(
-        'bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between transition-colors duration-300',
-        isCompleted && 'bg-emerald-50'
+        'bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-zinc-800 flex items-center justify-between transition-colors duration-300',
+        isCompleted && 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-500/30'
       )}
     >
       <div className="flex-1">
         <p className={cn(
-          'font-medium text-gray-700 transition-all',
-          isCompleted && 'line-through text-muted-foreground'
+          'font-medium text-gray-700 dark:text-zinc-200 transition-all',
+          isCompleted && 'line-through text-muted-foreground opacity-50'
         )}>
           {habit.title}
         </p>
@@ -50,7 +50,7 @@ export function HabitCard({ habit }: HabitCardProps) {
           'flex items-center justify-center h-12 w-12 rounded-full transition-all duration-300 ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500',
           isCompleted
             ? 'bg-emerald-500 text-white'
-            : 'bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 hover:bg-gray-200'
+            : 'bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-500 dark:ring-zinc-700 dark:hover:bg-zinc-700'
         )}
       >
         <Check className="h-7 w-7" />

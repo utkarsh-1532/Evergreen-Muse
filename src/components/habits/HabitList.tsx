@@ -27,7 +27,7 @@ export function HabitList({ habits }: HabitListProps) {
 
   if (habits.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-20 bg-white/30 dark:bg-black/30 backdrop-blur-sm rounded-xl mt-4">
+      <div className="text-center text-muted-foreground py-20 bg-white/30 dark:bg-zinc-900/60 backdrop-blur-sm rounded-xl mt-4">
         <h3 className="text-xl font-semibold">No habits yet.</h3>
         <p>Click the '+' button to add your first habit!</p>
       </div>
