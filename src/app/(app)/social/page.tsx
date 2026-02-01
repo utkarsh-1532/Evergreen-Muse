@@ -3,6 +3,7 @@
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { CreatePostDialog } from '@/components/post/CreatePostDialog';
 import { PostFeed } from '@/components/post/PostFeed';
+import FeatureBoundary from '@/components/FeatureBoundary';
 
 export default function SocialPage() {
   const { profile } = useUserProfile();
@@ -19,7 +20,9 @@ export default function SocialPage() {
             {profile && <CreatePostDialog />}
         </div>
         
-        <PostFeed />
+        <FeatureBoundary>
+            <PostFeed />
+        </FeatureBoundary>
     </div>
   );
 }
