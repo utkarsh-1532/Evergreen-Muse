@@ -14,10 +14,10 @@ export function PostCard({ post }: PostCardProps) {
   
   return (
     <Card className="transition-shadow shadow-md hover:shadow-lg">
-      <CardHeader>
+      <CardHeader className="p-4">
         <PostHeader post={post} />
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0">
         {post.title && <h3 className="text-xl font-semibold leading-snug">{post.title}</h3>}
         
         <PostMedia post={post} />
@@ -25,7 +25,7 @@ export function PostCard({ post }: PostCardProps) {
         {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
         
       </CardContent>
-      <CardFooter className="flex items-center gap-2 border-t pt-4 mt-4">
+      <CardFooter className="flex items-center gap-2 border-t p-4">
           <PostActions post={post} />
       </CardFooter>
     </Card>

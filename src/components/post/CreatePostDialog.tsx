@@ -267,192 +267,195 @@ export function CreatePostDialog() {
           Create Post
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="p-6 pb-2">
           <DialogTitle>Share something new</DialogTitle>
           <DialogDescription>
             What's on your mind? Share a story, an image, or a song.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="text"><Type className="mr-2"/>Text</TabsTrigger>
-                <TabsTrigger value="image"><ImageIcon className="mr-2"/>Image</TabsTrigger>
-                <TabsTrigger value="song"><Music className="mr-2"/>Song</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="text" className="space-y-4 pt-4">
-                <FormField control={form.control} name="title" render={({ field }) => (
-                    <FormItem><FormLabel>Title (Optional)</FormLabel><FormControl><Input placeholder="A catchy title" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="text" render={({ field }) => (
-                    <FormItem><FormLabel>Your Story</FormLabel><FormControl><Textarea placeholder="Share your thoughts..." {...field} value={field.value ?? ''} rows={8} /></FormControl><FormMessage /></FormItem>
-                )} />
-              </TabsContent>
-              
-              <TabsContent value="image" className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <FormField
-                            control={form.control}
-                            name="file"
-                            render={() => (
-                                <FormItem>
-                                    <FormLabel>Upload Image</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            {!imagePreview ? (
-                                                <label
-                                                    htmlFor="file-upload"
-                                                    className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer aspect-[4/5] text-muted-foreground hover:bg-muted/50 transition-colors"
-                                                >
-                                                    <ImageIcon className="w-12 h-12" />
-                                                    <p className="mt-2 text-sm font-medium">Click to upload</p>
-                                                    <p className="text-xs">4:5 aspect ratio recommended</p>
-                                                </label>
-                                            ) : (
-                                                <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5]">
-                                                    <Image src={imagePreview} alt="Image preview" fill className={cn("object-cover", {
-                                                        'object-top': imagePosition === 'top',
-                                                        'object-center': imagePosition === 'center',
-                                                        'object-bottom': imagePosition === 'bottom',
-                                                    })} />
-                                                    <Button
-                                                        type="button"
-                                                        variant="destructive"
-                                                        size="icon"
-                                                        className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50"
-                                                        onClick={handleRemoveImage}
-                                                        disabled={isUploading || loading}
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </Button>
-                                                    {isUploading && (
-                                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
-                                                            <Progress value={uploadProgress} className="w-1/2" />
-                                                            <p className="mt-2 text-sm font-medium text-primary-foreground">{Math.round(uploadProgress)}% uploaded</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                            <Input
-                                                id="file-upload"
-                                                ref={fileInputRef}
-                                                type="file"
-                                                accept="image/*"
-                                                className="hidden"
-                                                onChange={handleFileChange}
-                                                disabled={isUploading || loading}
-                                            />
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        {imagePreview && (
-                             <FormField
-                                control={form.control}
-                                name="imagePosition"
-                                render={({ field }) => (
-                                <FormItem className="mt-4">
-                                    <FormLabel>Image Framing</FormLabel>
-                                    <FormControl>
-                                        <RadioGroup
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                            className="flex items-center justify-around gap-4 pt-2"
-                                            >
-                                            <FormItem className="flex items-center space-x-2">
-                                                <RadioGroupItem value="top" id="pos-top" />
-                                                <FormLabel htmlFor="pos-top" className="cursor-pointer">Top</FormLabel>
-                                            </FormItem>
-                                            <FormItem className="flex items-center space-x-2">
-                                                <RadioGroupItem value="center" id="pos-center" />
-                                                <FormLabel htmlFor="pos-center" className="cursor-pointer">Center</FormLabel>
-                                            </FormItem>
-                                            <FormItem className="flex items-center space-x-2">
-                                                <RadioGroupItem value="bottom" id="pos-bottom" />
-                                                <FormLabel htmlFor="pos-bottom" className="cursor-pointer">Bottom</FormLabel>
-                                            </FormItem>
-                                        </RadioGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        )}
-                    </div>
-                    <div className="space-y-4">
-                    {imagePreview && (
-                        <>
-                            <FormField control={form.control} name="imageCaption" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Caption (Optional)</FormLabel>
-                                    <FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} disabled={isUploading || loading} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={form.control} name="text" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Additional thoughts (Optional)</FormLabel>
-                                    <FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} disabled={isUploading || loading} rows={10} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </>
-                    )}
-                    </div>
-                </div>
-              </TabsContent>
 
-              <TabsContent value="song" className="space-y-4 pt-4">
-                <div className="relative">
-                  <FormLabel>Search for a song</FormLabel>
-                  <div className="relative mt-2">
-                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                     <Input 
-                       placeholder="Search artist or song title..." 
-                       value={searchTerm}
-                       onChange={(e) => {
-                         setSearchTerm(e.target.value);
-                         setIsSongSelected(false);
-                       }}
-                       className="pl-10"
-                     />
-                     {searchTerm && <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setSearchTerm('')}><X className="h-4 w-4"/></Button>}
+        <div className="flex-1 overflow-y-auto px-6 py-2">
+          <Form {...form}>
+            <form id="create-post-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="text"><Type className="mr-2"/>Text</TabsTrigger>
+                  <TabsTrigger value="image"><ImageIcon className="mr-2"/>Image</TabsTrigger>
+                  <TabsTrigger value="song"><Music className="mr-2"/>Song</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="text" className="space-y-4 pt-4">
+                  <FormField control={form.control} name="title" render={({ field }) => (
+                      <FormItem><FormLabel>Title (Optional)</FormLabel><FormControl><Input placeholder="A catchy title" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="text" render={({ field }) => (
+                      <FormItem><FormLabel>Your Story</FormLabel><FormControl><Textarea placeholder="Share your thoughts..." {...field} value={field.value ?? ''} rows={12} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </TabsContent>
+                
+                <TabsContent value="image" className="pt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                          <FormField
+                              control={form.control}
+                              name="file"
+                              render={() => (
+                                  <FormItem>
+                                      <FormLabel>Upload Image</FormLabel>
+                                      <FormControl>
+                                          <div className="relative">
+                                              {!imagePreview ? (
+                                                  <label
+                                                      htmlFor="file-upload"
+                                                      className="flex flex-col items-center justify-center w-full h-96 border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:bg-muted/50 transition-colors"
+                                                  >
+                                                      <ImageIcon className="w-12 h-12" />
+                                                      <p className="mt-2 text-sm font-medium">Click to upload</p>
+                                                      <p className="text-xs">4:5 aspect ratio recommended</p>
+                                                  </label>
+                                              ) : (
+                                                  <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5]">
+                                                      <Image src={imagePreview} alt="Image preview" fill className={cn("object-cover", {
+                                                          'object-top': imagePosition === 'top',
+                                                          'object-center': imagePosition === 'center',
+                                                          'object-bottom': imagePosition === 'bottom',
+                                                      })} />
+                                                      <Button
+                                                          type="button"
+                                                          variant="destructive"
+                                                          size="icon"
+                                                          className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50"
+                                                          onClick={handleRemoveImage}
+                                                          disabled={isUploading || loading}
+                                                      >
+                                                          <X className="w-4 h-4" />
+                                                      </Button>
+                                                      {isUploading && (
+                                                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                                                              <Progress value={uploadProgress} className="w-1/2" />
+                                                              <p className="mt-2 text-sm font-medium text-primary-foreground">{Math.round(uploadProgress)}% uploaded</p>
+                                                          </div>
+                                                      )}
+                                                  </div>
+                                              )}
+                                              <Input
+                                                  id="file-upload"
+                                                  ref={fileInputRef}
+                                                  type="file"
+                                                  accept="image/*"
+                                                  className="hidden"
+                                                  onChange={handleFileChange}
+                                                  disabled={isUploading || loading}
+                                              />
+                                          </div>
+                                      </FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          {imagePreview && (
+                               <FormField
+                                  control={form.control}
+                                  name="imagePosition"
+                                  render={({ field }) => (
+                                  <FormItem>
+                                      <FormLabel>Image Framing</FormLabel>
+                                      <FormControl>
+                                          <RadioGroup
+                                              onValueChange={field.onChange}
+                                              defaultValue={field.value}
+                                              className="flex items-center justify-center gap-4 pt-2 border rounded-md p-2"
+                                              >
+                                              <FormItem className="flex items-center space-x-2">
+                                                  <RadioGroupItem value="top" id="pos-top" />
+                                                  <FormLabel htmlFor="pos-top" className="cursor-pointer">Top</FormLabel>
+                                              </FormItem>
+                                              <FormItem className="flex items-center space-x-2">
+                                                  <RadioGroupItem value="center" id="pos-center" />
+                                                  <FormLabel htmlFor="pos-center" className="cursor-pointer">Center</FormLabel>
+                                              </FormItem>
+                                              <FormItem className="flex items-center space-x-2">
+                                                  <RadioGroupItem value="bottom" id="pos-bottom" />
+                                                  <FormLabel htmlFor="pos-bottom" className="cursor-pointer">Bottom</FormLabel>
+                                              </FormItem>
+                                          </RadioGroup>
+                                      </FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                                  )}
+                              />
+                          )}
+                      </div>
+                      <div className="space-y-4">
+                      {imagePreview && (
+                          <>
+                              <FormField control={form.control} name="imageCaption" render={({ field }) => (
+                                  <FormItem>
+                                      <FormLabel>Caption (Optional)</FormLabel>
+                                      <FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} disabled={isUploading || loading} /></FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                              )} />
+                              <FormField control={form.control} name="text" render={({ field }) => (
+                                  <FormItem>
+                                      <FormLabel>Additional thoughts (Optional)</FormLabel>
+                                      <FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} disabled={isUploading || loading} rows={10} /></FormControl>
+                                      <FormMessage />
+                                  </FormItem>
+                              )} />
+                          </>
+                      )}
+                      </div>
                   </div>
-                  {searchLoading && <Loader2 className="animate-spin absolute right-2 bottom-2" />}
-                  {searchResults.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg">
-                      {searchResults.map((song) => (
-                        <button key={song.trackId} type="button" onClick={() => selectSong(song)} className="w-full text-left p-2 hover:bg-accent flex items-center gap-3">
-                          <Image src={song.artworkUrl100} alt={song.trackName} width={40} height={40} className="rounded-sm" />
-                          <div>
-                            <p className="font-medium text-sm">{song.trackName}</p>
-                            <p className="text-xs text-muted-foreground">{song.artistName}</p>
-                          </div>
-                        </button>
-                      ))}
+                </TabsContent>
+
+                <TabsContent value="song" className="space-y-4 pt-4">
+                  <div className="relative">
+                    <FormLabel>Search for a song</FormLabel>
+                    <div className="relative mt-2">
+                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                       <Input 
+                         placeholder="Search artist or song title..." 
+                         value={searchTerm}
+                         onChange={(e) => {
+                           setSearchTerm(e.target.value);
+                           setIsSongSelected(false);
+                         }}
+                         className="pl-10"
+                       />
+                       {searchTerm && <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setSearchTerm('')}><X className="h-4 w-4"/></Button>}
                     </div>
-                  )}
-                </div>
+                    {searchLoading && <Loader2 className="animate-spin absolute right-2 bottom-2" />}
+                    {searchResults.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg">
+                        {searchResults.map((song) => (
+                          <button key={song.trackId} type="button" onClick={() => selectSong(song)} className="w-full text-left p-2 hover:bg-accent flex items-center gap-3">
+                            <Image src={song.artworkUrl100} alt={song.trackName} width={40} height={40} className="rounded-sm" />
+                            <div>
+                              <p className="font-medium text-sm">{song.trackName}</p>
+                              <p className="text-xs text-muted-foreground">{song.artistName}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                <FormField control={form.control} name="text" render={({ field }) => (
-                    <FormItem><FormLabel>Why this song? (Optional)</FormLabel><FormControl><Textarea placeholder="What does this song mean to you?" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
-                )} />
-              </TabsContent>
+                  <FormField control={form.control} name="text" render={({ field }) => (
+                      <FormItem><FormLabel>Why this song? (Optional)</FormLabel><FormControl><Textarea placeholder="What does this song mean to you?" {...field} value={field.value ?? ''} rows={8}/></FormControl><FormMessage /></FormItem>
+                  )} />
+                </TabsContent>
 
-            </Tabs>
-            <DialogFooter>
-              <Button type="submit" disabled={loading || isUploading}>
-                {loading || isUploading ? <Loader2 className="animate-spin" /> : 'Post'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              </Tabs>
+            </form>
+          </Form>
+        </div>
+        <DialogFooter className="p-6 pt-4 border-t">
+          <Button type="submit" form="create-post-form" disabled={loading || isUploading}>
+            {loading || isUploading ? <Loader2 className="animate-spin" /> : 'Post'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
