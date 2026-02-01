@@ -25,7 +25,7 @@ export function HabitCard({ habit }: HabitCardProps) {
   return (
     <div
       className={cn(
-        'bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-zinc-800 flex items-center justify-between transition-colors duration-300',
+        'glass-panel rounded-2xl p-4 flex items-center justify-between transition-colors duration-300',
         isCompleted && 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-500/30'
       )}
     >

@@ -17,7 +17,7 @@ export function PostCard({ post, priority }: PostCardProps) {
   const hasSong = post.songTitle && post.artistName && post.albumArtUrl && post.audioPreviewUrl;
   
   return (
-    <Card className="rounded-3xl overflow-hidden shadow-xl shadow-black/5 hover:shadow-black/10 transition-all duration-300 will-change-transform">
+    <Card className="rounded-3xl overflow-hidden glass-panel transition-all duration-300 will-change-transform">
       <CardHeader className="p-4">
         <PostHeader post={post} />
       </CardHeader>

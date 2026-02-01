@@ -16,6 +16,10 @@ export default {
         code: ['monospace'],
       },
       colors: {
+        'forest-black': '#09090b',
+        'forest-charcoal': '#18181b',
+        'forest-glow': '#34d399',
+        'forest-dim': '#022c22',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

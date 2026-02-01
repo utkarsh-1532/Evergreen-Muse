@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Light Mode Glass (Frosty) */
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-sm;
+  }
+
+  /* Dark Mode Glass (Smoked) */
+  .dark .glass-panel {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/20;
+  }
+}
+
 body {
   font-family: var(--font-body), sans-serif;
 }
@@ -82,6 +94,9 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gray-50 text-gray-900; /* Light Mode Defaults */
+  }
+  .dark body {
+    @apply bg-zinc-950 text-zinc-100; /* Dark Mode Defaults */
   }
 }
