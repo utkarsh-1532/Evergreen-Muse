@@ -11,6 +11,7 @@ import {
   Firestore,
   updateDoc,
 } from 'firebase/firestore';
+import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
@@ -18,7 +19,7 @@ import type { UserProfile } from './types';
 
 export async function createProfile(
   db: Firestore,
-  user: { uid: string; email: string | null },
+  user: User,
   username: string,
   bio?: string
 ) {
@@ -35,7 +36,7 @@ export async function createProfile(
       const userProfileDoc = await transaction.get(userProfileRef);
       if (userProfileDoc.exists()) {
         // Profile already exists, just update it if needed
-        transaction.update(userProfileRef, { username, bio: bio || '' });
+        transaction.update(userProfileRef, { bio: bio || '' });
       } else {
         // New user profile
         transaction.set(userProfileRef, {
@@ -50,6 +51,10 @@ export async function createProfile(
       // Create the username lock
       transaction.set(usernameRef, { uid: user.uid });
     });
+
+    // After transaction, update the auth user's display name
+    await updateAuthProfile(user, { displayName: username });
+
   } catch (e: any) {
      // Re-throw transaction errors to be caught by the UI
     throw e;

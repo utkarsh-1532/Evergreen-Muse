@@ -1,14 +1,14 @@
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export default function SocialPage() {
-  const { user } = useUser();
+  const { profile } = useUserProfile();
 
   return (
     <div>
       <h1 className="text-3xl font-bold">Social Feed</h1>
-      <p>Welcome, {user?.displayName || user?.email}!</p>
+      <p>Welcome, {profile?.username}!</p>
       <p>Posts will be displayed here.</p>
     </div>
   );

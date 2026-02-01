@@ -1,19 +1,19 @@
 "use client";
 
-import { useUser } from "@/firebase";
+import { useUserProfile } from "@/hooks/use-user-profile";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ArrowRight, BookOpen, PenSquare, Target } from "lucide-react";
 import Link from 'next/link';
 
 export default function FeedPage() {
-  const { user } = useUser();
+  const { profile } = useUserProfile();
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold font-headline">
-          Welcome, {user?.displayName || user?.email?.split('@')[0] || 'Friend'}!
+          Welcome, {profile?.username || 'Friend'}!
         </h1>
         <p className="text-muted-foreground">
           Ready to continue your journey of growth?

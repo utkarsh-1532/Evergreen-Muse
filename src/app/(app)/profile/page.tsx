@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useFirestore, useUser } from '@/firebase';
-import { createProfile, getUserProfile } from '@/lib/firebase/firestore';
-import { UserProfile } from '@/lib/firebase/types';
+import { createProfile } from '@/lib/firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,7 +21,8 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { updateDoc, doc } from 'firebase/firestore';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const formSchema = z.object({
   username: z
@@ -37,12 +37,11 @@ const formSchema = z.object({
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
   const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isProfileLoading, setProfileLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,22 +52,13 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    async function fetchProfile() {
-      if (user) {
-        setProfileLoading(true);
-        const userProfile = await getUserProfile(firestore, user.uid);
-        setProfile(userProfile);
-        if (userProfile) {
-          form.reset({
-            username: userProfile.username,
-            bio: userProfile.bio || '',
-          });
-        }
-        setProfileLoading(false);
-      }
+    if (profile) {
+      form.reset({
+        username: profile.username,
+        bio: profile.bio || '',
+      });
     }
-    fetchProfile();
-  }, [user, firestore, form]);
+  }, [profile, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) return;
@@ -80,19 +70,14 @@ export default function ProfilePage() {
         const profileRef = doc(firestore, 'userProfiles', user.uid);
         await updateDoc(profileRef, {
             bio: values.bio,
-            // username is immutable based on my security rules, so I won't update it here.
-            // If the user wants to change username, that would be a more complex flow.
-            // For now, they set it once.
         });
         toast({
           title: 'Profile Updated',
           description: 'Your profile has been successfully updated.',
         });
-        router.push('/feed');
-
       } else {
         // Create new profile
-        await createProfile(firestore, user, values.username);
+        await createProfile(firestore, user, values.username, values.bio);
         toast({
           title: 'Profile Created',
           description: `Welcome, @${values.username}!`,

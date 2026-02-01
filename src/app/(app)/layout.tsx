@@ -21,9 +21,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
+  const { profile, isLoading: isProfileLoading } = useUserProfile();
   const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -32,14 +34,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (!isUserLoading && !user) {
       router.replace('/login');
     }
-  }, [user, isUserLoading, router]);
+    if (!isUserLoading && user && !isProfileLoading && !profile && pathname !== '/profile') {
+        router.replace('/profile');
+    }
+  }, [user, isUserLoading, router, profile, isProfileLoading, pathname]);
 
   const handleSignOut = async () => {
     await signOut(auth);
     router.push('/login');
   };
   
-  if (isUserLoading || !user) {
+  if (isUserLoading || !user || (pathname !== '/profile' && isProfileLoading)) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -47,9 +52,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const getInitials = (email?: string | null) => {
-    if (!email) return 'U';
-    return email.substring(0, 2).toUpperCase();
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'U';
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -116,10 +121,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
               {user.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
-              <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
+              <AvatarFallback>{getInitials(profile?.username || user.email)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col text-sm">
-                <span className="font-medium text-foreground">{user.displayName || user.email}</span>
+                <span className="font-medium text-foreground">{profile?.username || user.email}</span>
             </div>
           </div>
           <SidebarMenu>
