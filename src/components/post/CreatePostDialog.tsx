@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Type, Image as ImageIcon, Music } from 'lucide-react';
 import { Post } from '@/lib/firebase/types';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 // Schemas for each post type
 const textPostSchema = z.object({
@@ -62,6 +63,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function CreatePostDialog() {
   const { user } = useUser();
+  const { profile } = useUserProfile();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -84,13 +86,13 @@ export function CreatePostDialog() {
   }
 
   function onSubmit(values: FormValues) {
-    if (!user) {
-        toast({ variant: 'destructive', title: 'You must be logged in to post.' });
+    if (!user || !profile) {
+        toast({ variant: 'destructive', title: 'You must have a complete profile to post.' });
         return;
     }
     setLoading(true);
 
-    const postData: Partial<Omit<Post, 'id' | 'authorId' | 'timestamp' | 'likeIds'>> = {};
+    const postData: Partial<Omit<Post, 'id' | 'authorId' | 'authorUsername' | 'authorProfilePicUrl' | 'timestamp' | 'likeIds'>> = {};
 
     switch (values.postType) {
         case 'text':
@@ -108,8 +110,14 @@ export function CreatePostDialog() {
             postData.text = values.text || '';
             break;
     }
+    
+    const author = {
+      uid: user.uid,
+      username: profile.username,
+      profilePicUrl: profile.profilePicUrl
+    };
 
-    createPost(firestore, user, postData);
+    createPost(firestore, author, postData);
     
     toast({ title: 'Post submitted!', description: 'Your post will appear shortly.' });
     setIsOpen(false);

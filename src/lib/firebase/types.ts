@@ -13,6 +13,8 @@ export type UserProfile = {
 export type Post = {
     id: string;
     authorId: string;
+    authorUsername: string;
+    authorProfilePicUrl?: string;
     title?: string;
     text: string;
     imageUrl?: string;

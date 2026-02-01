@@ -61,6 +61,15 @@
           "type": "string",
           "description": "Reference to the user who created the post. (Relationship: User 1:N Post)"
         },
+        "authorUsername": {
+          "type": "string",
+          "description": "The username of the post's author (denormalized)."
+        },
+        "authorProfilePicUrl": {
+          "type": "string",
+          "description": "URL of the author's profile picture (denormalized).",
+          "format": "uri"
+        },
         "title": {
           "type": "string",
           "description": "Title of the post."
@@ -102,6 +111,7 @@
       "required": [
         "id",
         "authorId",
+        "authorUsername",
         "text",
         "timestamp"
       ]

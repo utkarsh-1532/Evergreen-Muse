@@ -69,17 +69,19 @@ export async function getUserProfile(db: Firestore, userId: string): Promise<Use
 
 export function createPost(
   db: Firestore,
-  user: User,
-  postData: Partial<Omit<Post, 'id' | 'authorId' | 'timestamp' | 'likeIds'>>
+  author: { uid: string; username: string; profilePicUrl?: string },
+  postData: Partial<Omit<Post, 'id' | 'authorId' | 'authorUsername' | 'authorProfilePicUrl' | 'timestamp' | 'likeIds'>>
 ): void {
-  if (!user.uid) {
-    throw new Error('User must be authenticated to create a post.');
+  if (!author.uid || !author.username) {
+    throw new Error('Author details are required to create a post.');
   }
   const postsCollectionRef = collection(db, 'global_posts');
 
   const newPostData = {
     ...postData,
-    authorId: user.uid,
+    authorId: author.uid,
+    authorUsername: author.username,
+    authorProfilePicUrl: author.profilePicUrl || '',
     timestamp: serverTimestamp(),
     likeIds: [],
   };
