@@ -38,43 +38,46 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     audioRef.current = new Audio(audioPreviewUrl);
     const audio = audioRef.current;
 
-    const handleCanPlay = () => setIsLoading(false);
-    const handlePlay = () => {
+    const onCanPlay = () => setIsLoading(false);
+    const onPlay = () => {
         setIsPlaying(true);
         mediaEmitter.emit('audio-play-start', audioPreviewUrl);
     };
-    const handlePause = () => setIsPlaying(false);
-    const handleEnded = () => setIsPlaying(false);
-    const handleLoading = () => setIsLoading(true);
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => setIsPlaying(false);
+    const onLoading = () => setIsLoading(true);
 
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('play', handlePlay);
-    audio.addEventListener('pause', handlePause);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('waiting', handleLoading);
-    audio.addEventListener('stalled', handleLoading);
+    audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('waiting', onLoading);
+    audio.addEventListener('stalled', onLoading);
 
     return () => {
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('play', handlePlay);
-      audio.removeEventListener('pause', handlePause);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('waiting', handleLoading);
-      audio.removeEventListener('stalled', handleLoading);
+      audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('waiting', onLoading);
+      audio.removeEventListener('stalled', onLoading);
       audio.pause();
     };
   }, [audioPreviewUrl]);
 
-  const togglePlayPause = () => {
+  const handlePlayClick = () => {
     if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        setIsLoading(true);
-        audioRef.current.play().catch(() => setIsLoading(false)); // Handle potential play errors
-      }
+      setIsLoading(true);
+      audioRef.current.play().catch(() => setIsLoading(false)); // Handle potential play errors
     }
   };
+
+  const handlePauseClick = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+  };
+  
 
   return (
     <div className="flex items-center gap-4 rounded-md border p-4">
@@ -85,15 +88,20 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
         <p className="font-semibold truncate">{songTitle}</p>
         <p className="text-sm text-muted-foreground truncate">{artistName}</p>
       </div>
-      <Button variant="ghost" size="icon" onClick={togglePlayPause} className="rounded-full w-12 h-12" disabled={isLoading}>
-        {isLoading ? (
+      
+      {isLoading ? (
+        <Button variant="ghost" size="icon" className="rounded-full w-12 h-12" disabled>
           <Loader2 className="h-6 w-6 animate-spin" />
-        ) : isPlaying ? (
+        </Button>
+      ) : isPlaying ? (
+        <Button variant="ghost" size="icon" onClick={handlePauseClick} className="rounded-full w-12 h-12">
           <Pause className="h-6 w-6" />
-        ) : (
+        </Button>
+      ) : (
+        <Button variant="ghost" size="icon" onClick={handlePlayClick} className="rounded-full w-12 h-12">
           <Play className="h-6 w-6" />
-        )}
-      </Button>
+        </Button>
+      )}
     </div>
   );
 }
