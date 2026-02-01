@@ -169,11 +169,13 @@ export function CreatePostDialog() {
     }
     setLoading(true);
 
-    const postData: Partial<Omit<Post, 'id' | 'timestamp' | 'likeIds'>> = {
-      authorId: user.uid,
-      authorUsername: profile.username,
-      authorProfilePicUrl: profile.profilePicUrl || '',
+    const author = {
+      uid: user.uid,
+      username: profile.username,
+      profilePicUrl: profile.profilePicUrl || '',
     };
+    
+    const postData: Partial<Omit<Post, 'id' | 'authorId' | 'authorUsername' | 'authorProfilePicUrl' | 'timestamp' | 'likeIds'>> = {};
     
     try {
       switch (values.postType) {
@@ -196,7 +198,7 @@ export function CreatePostDialog() {
           break;
       }
     
-      createPost(firestore, postData);
+      createPost(firestore, author, postData);
     
       toast({ title: 'Post submitted!', description: 'Your post will appear shortly.' });
       setIsOpen(false);
