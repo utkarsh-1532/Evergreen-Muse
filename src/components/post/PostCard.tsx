@@ -2,45 +2,12 @@
 
 import { Post } from '@/lib/firebase/types';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { MiniPlayer } from './MiniPlayer';
+import { PostHeader } from './PostHeader';
+import { PostMedia } from './PostMedia';
+import { PostActions } from './PostActions';
 
 interface PostCardProps {
   post: Post;
-}
-
-const AuthorHeader = ({ 
-  authorUsername, 
-  authorProfilePicUrl, 
-  timestamp 
-}: { 
-  authorUsername: string, 
-  authorProfilePicUrl?: string, 
-  timestamp: any 
-}) => {
-    const getInitials = (name?: string | null) => {
-        if (!name) return 'U';
-        return name.substring(0, 2).toUpperCase();
-    };
-
-    return (
-        <div className="flex items-center gap-4">
-            <Avatar>
-              <AvatarImage src={authorProfilePicUrl} />
-              <AvatarFallback>{getInitials(authorUsername)}</AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-semibold">{authorUsername || 'Anonymous'}</p>
-              <p className="text-sm text-muted-foreground">
-                {timestamp ? formatDistanceToNow( (timestamp as any).toDate(), { addSuffix: true }) : 'just now'}
-              </p>
-            </div>
-        </div>
-    )
 }
 
 export function PostCard({ post }: PostCardProps) {
@@ -48,47 +15,18 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Card>
       <CardHeader>
-        <AuthorHeader 
-          authorUsername={post.authorUsername}
-          authorProfilePicUrl={post.authorProfilePicUrl}
-          timestamp={post.timestamp} 
-        />
+        <PostHeader post={post} />
       </CardHeader>
       <CardContent className="space-y-4">
         {post.title && <h3 className="text-xl font-semibold leading-snug">{post.title}</h3>}
         
-        {post.imageUrl && (
-            <div className="space-y-2">
-                 <div className="aspect-video relative w-full overflow-hidden rounded-lg border">
-                    <Image src={post.imageUrl} alt={post.imageCaption || 'Post image'} fill className="object-cover" />
-                </div>
-                {post.imageCaption && <p className="text-sm text-muted-foreground italic text-center">{post.imageCaption}</p>}
-            </div>
-        )}
-
-        {post.songTitle && post.artistName && post.albumArtUrl && post.audioPreviewUrl && (
-          <MiniPlayer 
-            songTitle={post.songTitle}
-            artistName={post.artistName}
-            albumArtUrl={post.albumArtUrl}
-            audioPreviewUrl={post.audioPreviewUrl}
-          />
-        )}
+        <PostMedia post={post} />
 
         {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
         
       </CardContent>
       <CardFooter className="flex items-center gap-2 border-t pt-4 mt-4">
-          <Button variant="ghost" size="sm">
-            <Heart className="mr-2" />
-            <span>{post.likeIds?.length || 0}</span>
-            <span className="sr-only">Likes</span>
-          </Button>
-          <Button variant="ghost" size="sm">
-            <MessageCircle className="mr-2" />
-            <span className="sr-only">Comment</span>
-            <span>Comment</span>
-          </Button>
+          <PostActions post={post} />
       </CardFooter>
     </Card>
   )

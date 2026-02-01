@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Play, Pause, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { mediaEmitter } from '@/lib/media-emitter';
+import { useToast } from '@/hooks/use-toast';
 
 interface MiniPlayerProps {
   songTitle: string;
@@ -17,6 +18,7 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   // Effect to pause this player if another one starts
   useEffect(() => {
@@ -35,6 +37,8 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
 
   // Effect to set up and tear down the audio element and its listeners
   useEffect(() => {
+    if (!audioPreviewUrl) return;
+    
     audioRef.current = new Audio(audioPreviewUrl);
     const audio = audioRef.current;
 
@@ -69,13 +73,22 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     };
   }, [audioPreviewUrl]);
 
-  const handlePlayClick = () => {
+  const handlePlayClick = async () => {
     if (audioRef.current) {
       setIsLoading(true); // Show loading indicator immediately
-      audioRef.current.play().catch((e) => {
-        console.error("Audio playback failed:", e);
-        setIsLoading(false); // If it fails to play, stop loading
-      });
+      try {
+        await audioRef.current.play();
+        // onPlaying event will handle setting isLoading and isPlaying state
+      } catch (error) {
+        console.error("Audio playback failed:", error);
+        setIsLoading(false);
+        setIsPlaying(false);
+        toast({
+          variant: 'destructive',
+          title: 'Audio Error',
+          description: 'The audio preview is unavailable.',
+        });
+      }
     }
   };
 

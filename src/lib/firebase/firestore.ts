@@ -17,6 +17,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Post, UserProfile } from './types';
+import { POSTS_COLLECTION } from '@/lib/constants';
 
 export function createProfile(
   db: Firestore,
@@ -75,7 +76,7 @@ export function createPost(
   if (!author.uid || !author.username) {
     throw new Error('Author details are required to create a post.');
   }
-  const postsCollectionRef = collection(db, 'global_posts');
+  const postsCollectionRef = collection(db, POSTS_COLLECTION);
 
   const newPostData = {
     ...postData,
