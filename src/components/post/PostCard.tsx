@@ -13,7 +13,7 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   
   return (
-    <Card>
+    <Card className="transition-shadow shadow-md hover:shadow-lg">
       <CardHeader>
         <PostHeader post={post} />
       </CardHeader>

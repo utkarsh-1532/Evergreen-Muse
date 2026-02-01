@@ -12,7 +12,7 @@ export const PostMedia = ({ post }: PostMediaProps) => {
         <>
             {post.imageUrl && (
                 <div className="space-y-2">
-                     <div className="aspect-video relative w-full overflow-hidden rounded-lg border">
+                     <div className="aspect-[4/5] relative w-full overflow-hidden rounded-lg border">
                         <SafeImage src={post.imageUrl} alt={post.imageCaption || 'Post image'} fill className="object-cover" />
                     </div>
                     {post.imageCaption && <p className="text-sm text-muted-foreground italic text-center">{post.imageCaption}</p>}
