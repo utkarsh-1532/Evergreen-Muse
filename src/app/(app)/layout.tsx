@@ -93,8 +93,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#">
-                <SidebarMenuButton>
+               <Link href="/journal">
+                <SidebarMenuButton isActive={pathname.startsWith('/journal')}>
                   <PenSquare />
                   Journal
                 </SidebarMenuButton>
@@ -109,8 +109,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#">
-                <SidebarMenuButton>
+               <Link href="/learning">
+                <SidebarMenuButton isActive={pathname.startsWith('/learning')}>
                   <BookOpen />
                   Learning
                 </SidebarMenuButton>
