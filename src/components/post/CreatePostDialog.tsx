@@ -92,6 +92,7 @@ export function CreatePostDialog() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<ItunesResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isSongSelected, setIsSongSelected] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -109,7 +110,7 @@ export function CreatePostDialog() {
 
   // Fetch from iTunes API when debounced search term changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim() === '') {
+    if (debouncedSearchTerm.trim() === '' || isSongSelected) {
       setSearchResults([]);
       return;
     }
@@ -129,7 +130,7 @@ export function CreatePostDialog() {
     };
 
     fetchMusic();
-  }, [debouncedSearchTerm, toast]);
+  }, [debouncedSearchTerm, toast, isSongSelected]);
 
   const handleTabChange = (value: string) => {
     const tab = value as 'text' | 'image' | 'song';
@@ -139,6 +140,7 @@ export function CreatePostDialog() {
     setImagePreview(null);
     setSearchTerm('');
     setSearchResults([]);
+    setIsSongSelected(false);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,6 +160,8 @@ export function CreatePostDialog() {
     form.setValue('artistName' as any, song.artistName);
     form.setValue('albumArtUrl' as any, song.artworkUrl100.replace('100x100', '600x600'));
     form.setValue('audioPreviewUrl' as any, song.previewUrl);
+    
+    setIsSongSelected(true);
     setSearchResults([]);
     setSearchTerm(`${song.trackName} - ${song.artistName}`);
   }
@@ -205,6 +209,7 @@ export function CreatePostDialog() {
       form.reset();
       setImagePreview(null);
       setSearchTerm('');
+      setIsSongSelected(false);
     } catch (error: any) {
         toast({ variant: 'destructive', title: 'Failed to create post', description: error.message });
     } finally {
@@ -274,7 +279,10 @@ export function CreatePostDialog() {
                      <Input 
                        placeholder="Search artist or song title..." 
                        value={searchTerm}
-                       onChange={(e) => setSearchTerm(e.target.value)}
+                       onChange={(e) => {
+                         setSearchTerm(e.target.value);
+                         setIsSongSelected(false);
+                       }}
                        className="pl-10"
                      />
                      {searchTerm && <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setSearchTerm('')}><X className="h-4 w-4"/></Button>}

@@ -13,8 +13,8 @@ export const uploadImage = async (storage: Storage, file: File, userId: string):
     if (!file.type.startsWith('image/')) {
         throw new Error('File is not an image.');
     }
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        throw new Error('Image must be less than 5MB.');
+    if (file.size > 20 * 1024 * 1024) { // 20MB limit
+        throw new Error('Image must be less than 20MB.');
     }
 
     const fileExtension = file.name.split('.').pop();

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Play, Pause, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { mediaEmitter } from '@/lib/media-emitter';
 
 interface MiniPlayerProps {
   songTitle: string;
@@ -17,12 +18,31 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Effect to pause this player if another one starts
+  useEffect(() => {
+    const handleOtherAudioPlay = (playingUrl: string) => {
+        if (audioRef.current && playingUrl !== audioPreviewUrl) {
+            audioRef.current.pause();
+        }
+    };
+
+    mediaEmitter.on('audio-play-start', handleOtherAudioPlay);
+
+    return () => {
+        mediaEmitter.off('audio-play-start', handleOtherAudioPlay);
+    };
+  }, [audioPreviewUrl]);
+
+  // Effect to set up and tear down the audio element and its listeners
   useEffect(() => {
     audioRef.current = new Audio(audioPreviewUrl);
     const audio = audioRef.current;
 
     const handleCanPlay = () => setIsLoading(false);
-    const handlePlay = () => setIsPlaying(true);
+    const handlePlay = () => {
+        setIsPlaying(true);
+        mediaEmitter.emit('audio-play-start', audioPreviewUrl);
+    };
     const handlePause = () => setIsPlaying(false);
     const handleEnded = () => setIsPlaying(false);
     const handleLoading = () => setIsLoading(true);
