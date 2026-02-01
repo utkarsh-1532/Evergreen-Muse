@@ -91,9 +91,19 @@
           "type": "string",
           "description": "Title of the song associated with the post."
         },
-        "songArtist": {
+        "artistName": {
           "type": "string",
           "description": "Artist of the song associated with the post."
+        },
+        "albumArtUrl": {
+          "type": "string",
+          "description": "URL of the album art for the associated song.",
+          "format": "uri"
+        },
+        "audioPreviewUrl": {
+          "type": "string",
+          "description": "URL for a preview snippet of the associated song.",
+          "format": "uri"
         },
         "timestamp": {
           "type": "string",

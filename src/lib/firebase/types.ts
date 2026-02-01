@@ -20,7 +20,9 @@ export type Post = {
     imageUrl?: string;
     imageCaption?: string;
     songTitle?: string;
-    songArtist?: string;
+    artistName?: string;
+    albumArtUrl?: string;
+    audioPreviewUrl?: string;
     timestamp: Timestamp;
     likeIds: string[];
 };

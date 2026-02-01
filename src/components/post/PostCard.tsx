@@ -4,9 +4,10 @@ import { Post } from '@/lib/firebase/types';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageCircle, Music, Image as ImageIcon } from 'lucide-react';
+import { Heart, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { MiniPlayer } from './MiniPlayer';
 
 interface PostCardProps {
   post: Post;
@@ -65,16 +66,13 @@ export function PostCard({ post }: PostCardProps) {
             </div>
         )}
 
-        {post.songTitle && (
-            <div className="flex items-center gap-4 rounded-md border p-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-                    <Music className="h-8 w-8 text-primary" />
-                </div>
-                <div className='min-w-0'>
-                    <p className="font-semibold truncate">{post.songTitle}</p>
-                    <p className="text-sm text-muted-foreground truncate">{post.songArtist}</p>
-                </div>
-            </div>
+        {post.songTitle && post.artistName && post.albumArtUrl && post.audioPreviewUrl && (
+          <MiniPlayer 
+            songTitle={post.songTitle}
+            artistName={post.artistName}
+            albumArtUrl={post.albumArtUrl}
+            audioPreviewUrl={post.audioPreviewUrl}
+          />
         )}
 
         {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
