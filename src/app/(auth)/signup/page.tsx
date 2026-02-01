@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signUpWithEmail } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +19,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const formSchema = z
   .object({
@@ -41,7 +35,7 @@ const formSchema = z
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const router = useRouter();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,7 +51,11 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       await signUpWithEmail(values.email, values.password);
-      setSuccess(true);
+      toast({
+        title: "Account Created",
+        description: "We've sent a verification link to your email address.",
+      });
+      router.push("/feed");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -67,25 +65,6 @@ export default function SignUpPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (success) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Check your inbox</CardTitle>
-          <CardDescription>
-            We've sent a verification link to your email address. Please check
-            your inbox to complete the registration.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/login">
-            <Button className="w-full">Back to Login</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (
