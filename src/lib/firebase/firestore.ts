@@ -178,8 +178,11 @@ export function toggleHabit(db: Firestore, userId: string, habit: WithId<Habit>)
       updateData.streak = 1;
     }
     
-    updateData.lastCompleted = serverTimestamp();
-    updateData.completedDates = arrayUnion(serverTimestamp());
+    // Using serverTimestamp() inside arrayUnion is not allowed.
+    // We will use a client-side timestamp instead for consistency.
+    const completionTime = new Date();
+    updateData.lastCompleted = completionTime;
+    updateData.completedDates = arrayUnion(completionTime);
   }
   
   updateDocumentNonBlocking(habitRef, updateData);
