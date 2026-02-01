@@ -35,6 +35,8 @@ import { uploadImageWithProgress } from '@/lib/firebase/storage';
 import { compressImage } from '@/lib/image-compression';
 import { Progress } from '@/components/ui/progress';
 import Image from 'next/image';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 // Schemas for each post type
 const textPostSchema = z.object({
@@ -48,6 +50,7 @@ const imagePostSchema = z.object({
   file: z.instanceof(File).refine((file) => file.size > 0, 'Please select an image.'),
   text: z.string().max(2200).optional(),
   imageCaption: z.string().max(200).optional(),
+  imagePosition: z.enum(['top', 'center', 'bottom']).default('center'),
 });
 
 const songPostSchema = z.object({
@@ -101,6 +104,8 @@ export function CreatePostDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: { postType: 'text', text: '' },
   });
+  
+  const imagePosition = form.watch('imagePosition' as any);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -138,6 +143,9 @@ export function CreatePostDialog() {
     setActiveTab(tab);
     form.reset();
     form.setValue('postType', tab);
+     if (tab === 'image') {
+      form.setValue('imagePosition' as any, 'center');
+    }
     setImagePreview(null);
     setSearchTerm('');
     setSearchResults([]);
@@ -225,6 +233,7 @@ export function CreatePostDialog() {
           postData.imageUrl = imageUrl;
           postData.imageCaption = values.imageCaption;
           postData.text = values.text || '';
+          postData.imagePosition = values.imagePosition;
           break;
         case 'song':
           postData.songTitle = values.songTitle;
@@ -285,80 +294,118 @@ export function CreatePostDialog() {
               
               <TabsContent value="image" className="pt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="file"
-                    render={() => (
-                        <FormItem>
-                            <FormLabel>Upload Image</FormLabel>
-                            <FormControl>
-                                <div className="relative">
-                                    {!imagePreview ? (
-                                        <label
-                                            htmlFor="file-upload"
-                                            className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer aspect-[4/5] text-muted-foreground hover:bg-muted/50 transition-colors"
-                                        >
-                                            <ImageIcon className="w-12 h-12" />
-                                            <p className="mt-2 text-sm font-medium">Click to upload</p>
-                                            <p className="text-xs">4:5 aspect ratio recommended</p>
-                                        </label>
-                                    ) : (
-                                        <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5]">
-                                            <Image src={imagePreview} alt="Image preview" fill className="object-cover" />
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="icon"
-                                                className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50"
-                                                onClick={handleRemoveImage}
-                                                disabled={isUploading || loading}
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </Button>
-                                            {isUploading && (
-                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
-                                                    <Progress value={uploadProgress} className="w-1/2" />
-                                                    <p className="mt-2 text-sm font-medium text-primary-foreground">{Math.round(uploadProgress)}% uploaded</p>
+                    <div>
+                        <FormField
+                            control={form.control}
+                            name="file"
+                            render={() => (
+                                <FormItem>
+                                    <FormLabel>Upload Image</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            {!imagePreview ? (
+                                                <label
+                                                    htmlFor="file-upload"
+                                                    className="flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg cursor-pointer aspect-[4/5] text-muted-foreground hover:bg-muted/50 transition-colors"
+                                                >
+                                                    <ImageIcon className="w-12 h-12" />
+                                                    <p className="mt-2 text-sm font-medium">Click to upload</p>
+                                                    <p className="text-xs">4:5 aspect ratio recommended</p>
+                                                </label>
+                                            ) : (
+                                                <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5]">
+                                                    <Image src={imagePreview} alt="Image preview" fill className={cn("object-cover", {
+                                                        'object-top': imagePosition === 'top',
+                                                        'object-center': imagePosition === 'center',
+                                                        'object-bottom': imagePosition === 'bottom',
+                                                    })} />
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute top-2 right-2 rounded-full h-8 w-8 disabled:opacity-50"
+                                                        onClick={handleRemoveImage}
+                                                        disabled={isUploading || loading}
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                    {isUploading && (
+                                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                                                            <Progress value={uploadProgress} className="w-1/2" />
+                                                            <p className="mt-2 text-sm font-medium text-primary-foreground">{Math.round(uploadProgress)}% uploaded</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
+                                            <Input
+                                                id="file-upload"
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleFileChange}
+                                                disabled={isUploading || loading}
+                                            />
                                         </div>
-                                    )}
-                                    <Input
-                                        id="file-upload"
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                        disabled={isUploading || loading}
-                                    />
-                                </div>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {imagePreview && (
+                             <FormField
+                                control={form.control}
+                                name="imagePosition"
+                                render={({ field }) => (
+                                <FormItem className="mt-4">
+                                    <FormLabel>Image Framing</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                            className="flex items-center justify-around gap-4 pt-2"
+                                            >
+                                            <FormItem className="flex items-center space-x-2">
+                                                <RadioGroupItem value="top" id="pos-top" />
+                                                <FormLabel htmlFor="pos-top" className="cursor-pointer">Top</FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-2">
+                                                <RadioGroupItem value="center" id="pos-center" />
+                                                <FormLabel htmlFor="pos-center" className="cursor-pointer">Center</FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center space-x-2">
+                                                <RadioGroupItem value="bottom" id="pos-bottom" />
+                                                <FormLabel htmlFor="pos-bottom" className="cursor-pointer">Bottom</FormLabel>
+                                            </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        )}
+                    </div>
+                    <div className="space-y-4">
+                    {imagePreview && (
+                        <>
+                            <FormField control={form.control} name="imageCaption" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Caption (Optional)</FormLabel>
+                                    <FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} disabled={isUploading || loading} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="text" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Additional thoughts (Optional)</FormLabel>
+                                    <FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} disabled={isUploading || loading} rows={10} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </>
                     )}
-                />
-                <div className="space-y-4">
-                  {imagePreview && (
-                      <>
-                          <FormField control={form.control} name="imageCaption" render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Caption (Optional)</FormLabel>
-                                  <FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} disabled={isUploading || loading} /></FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )} />
-                          <FormField control={form.control} name="text" render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Additional thoughts (Optional)</FormLabel>
-                                  <FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} disabled={isUploading || loading} rows={10} /></FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                          )} />
-                      </>
-                  )}
+                    </div>
                 </div>
-              </div>
               </TabsContent>
 
               <TabsContent value="song" className="space-y-4 pt-4">

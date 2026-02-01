@@ -19,6 +19,7 @@ export type Post = {
     text: string;
     imageUrl?: string;
     imageCaption?: string;
+    imagePosition?: 'top' | 'center' | 'bottom';
     songTitle?: string;
     artistName?: string;
     albumArtUrl?: string;
