@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { format, subDays, isToday as isTodayFns } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface HabitProgressProps {
     username?: string | null;
@@ -9,9 +9,32 @@ interface HabitProgressProps {
     total: number;
 }
 
+function DateStrip() {
+    const today = new Date();
+    const days = Array.from({ length: 7 }).map((_, i) => subDays(today, 3 - i));
+
+    return (
+        <div className="flex justify-between items-center mt-4">
+            {days.map(day => {
+                const isCurrentDay = isTodayFns(day);
+                return (
+                    <div key={day.toString()} className="flex flex-col items-center gap-2">
+                        <span className="text-xs text-muted-foreground uppercase">{format(day, 'E')}</span>
+                        <span className={cn(
+                            "flex items-center justify-center h-8 w-8 rounded-full text-sm font-medium",
+                            isCurrentDay ? 'bg-emerald-100 text-emerald-700' : 'text-foreground'
+                        )}>
+                            {format(day, 'd')}
+                        </span>
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
+
 export function HabitProgress({ username, completed, total }: HabitProgressProps) {
-    const progressPercentage = total > 0 ? (completed / total) * 100 : 0;
-    
     const getGreeting = () => {
         const hour = new Date().getHours();
         if (hour < 12) return 'Good Morning';
@@ -20,20 +43,19 @@ export function HabitProgress({ username, completed, total }: HabitProgressProps
     }
 
     return (
-        <Card className="bg-white/60 dark:bg-black/60 backdrop-blur-lg border-white/20 shadow-xl">
-            <CardHeader>
-                <CardTitle className="text-2xl font-bold">
-                    {getGreeting()}, {username || 'friend'}!
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                        Today's Progress: {completed}/{total} habits
-                    </p>
-                    <Progress value={progressPercentage} className="h-3 bg-emerald-100 [&>*]:bg-emerald-500" />
+        <div className="w-full bg-white/50 backdrop-blur-md sticky top-0 z-10 border-b border-gray-100 p-4">
+            <div className="max-w-md mx-auto">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-xl font-serif font-bold text-gray-800">
+                        {getGreeting()}, {username || 'friend'}!
+                    </h1>
+                    <div className="text-right">
+                        <p className="text-sm font-medium text-emerald-600">{completed}/{total} Completed</p>
+                        <p className="text-xs text-muted-foreground">Today's Progress</p>
+                    </div>
                 </div>
-            </CardContent>
-        </Card>
+                <DateStrip />
+            </div>
+        </div>
     );
 }
