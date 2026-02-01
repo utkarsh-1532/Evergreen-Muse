@@ -11,7 +11,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.replace('/signup');
+      router.replace('/login');
     }
   }, [user, loading, router]);
 

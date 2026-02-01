@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signUpWithEmail, signInWithEmail } from "@/lib/firebase/auth";
+import { signInWithEmail } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,20 +20,12 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-const formSchema = z
-  .object({
-    email: z.string().email({ message: "Please enter a valid email." }),
-    password: z
-      .string()
-      .min(6, { message: "Password must be at least 6 characters." }),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
-  });
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email." }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
 
-export default function SignUpPage() {
+export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -43,21 +35,18 @@ export default function SignUpPage() {
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      await signUpWithEmail(values.email, values.password);
-      // Also sign in the user after they sign up
       await signInWithEmail(values.email, values.password);
       router.push("/feed");
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Sign Up Failed",
+        title: "Sign In Failed",
         description: error.message || "An unexpected error occurred.",
       });
     } finally {
@@ -95,28 +84,15 @@ export default function SignUpPage() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? <Loader2 className="animate-spin" /> : "Create Account"}
+            {loading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </Button>
         </form>
       </Form>
-       <p className="mt-4 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="font-medium text-primary hover:underline">
-          Sign In
+      <p className="mt-4 text-center text-sm text-muted-foreground">
+        Don't have an account?{" "}
+        <Link href="/signup" className="font-medium text-primary hover:underline">
+          Sign Up
         </Link>
       </p>
     </>
