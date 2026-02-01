@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "forest_stream_1",
+      "description": "A gentle stream flowing through a lush green forest.",
+      "imageUrl": "https://images.unsplash.com/photo-1529467142715-cb6f6e7d5d5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmb3Jlc3QlMjBzdHJlYW18ZW58MHx8fHwxNzY5OTE3Njg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest stream"
+    },
+    {
+      "id": "mountain_sunrise_1",
+      "description": "The sun rising over a misty mountain range, casting a warm glow.",
+      "imageUrl": "https://images.unsplash.com/photo-1490682143684-14369e18dce8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb3VudGFpbiUyMHN1bnJpc2V8ZW58MHx8fHwxNzY5ODU1OTI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain sunrise"
+    },
+    {
+      "id": "sandy_dunes_1",
+      "description": "Warm sand dunes under a clear blue sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1611522135886-a632d94ff6ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzYW5kJTIwZHVuZXN8ZW58MHx8fHwxNzY5OTI2MTQ5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sand dunes"
+    },
+    {
+      "id": "mossy_rocks_1",
+      "description": "Close-up of moss-covered rocks by a river.",
+      "imageUrl": "https://images.unsplash.com/photo-1723989059410-1c6ced2c37d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtb3NzeSUyMHJvY2tzfGVufDB8fHx8MTc2OTk3NDUxOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mossy rocks"
+    },
+    {
+      "id": "leaf_macro_1",
+      "description": "A detailed macro shot of a green leaf with water droplets.",
+      "imageUrl": "https://images.unsplash.com/photo-1580133318324-f2f76d987dd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsZWFmJTIwbWFjcm98ZW58MHx8fHwxNzY5OTc0NTE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "leaf macro"
+    }
+  ]
 }
