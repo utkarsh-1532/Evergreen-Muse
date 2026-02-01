@@ -295,7 +295,7 @@ export function CreatePostDialog() {
                 )}
                 {imagePreview && !isUploading && (
                     <div className="relative aspect-video w-full overflow-hidden rounded-md border">
-                        <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="cover" />
+                        <Image src={imagePreview} alt="Image preview" fill className="object-cover" />
                     </div>
                 )}
                  <FormField control={form.control} name="imageCaption" render={({ field }) => (
