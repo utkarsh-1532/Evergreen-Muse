@@ -113,7 +113,7 @@ service cloud.firestore {
     match /userProfiles/{userProfileId} {
       allow get, list: if true;
       allow create: if isOwner(userProfileId) && request.resource.data.userId == userProfileId && isCreatingUniqueUsername(userProfileId);
-      allow update: if isExistingOwner(userProfileId) && request.resource.data.userId == resource.data.userId && request.resource.data.username == resource.data.username;
+      allow update: if isExistingOwner(userProfileId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bio', 'profilePicUrl']);
       allow delete: if isExistingOwner(userProfileId);
     }
 

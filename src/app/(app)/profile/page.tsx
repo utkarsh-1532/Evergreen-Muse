@@ -21,8 +21,9 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { updateDoc, doc } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const formSchema = z.object({
   username: z
@@ -64,34 +65,36 @@ export default function ProfilePage() {
     if (!user) return;
 
     setLoading(true);
-    try {
-      if (profile) {
-        // Update existing profile
-        const profileRef = doc(firestore, 'userProfiles', user.uid);
-        await updateDoc(profileRef, {
-            bio: values.bio,
-        });
-        toast({
-          title: 'Profile Updated',
-          description: 'Your profile has been successfully updated.',
-        });
-      } else {
-        // Create new profile
-        await createProfile(firestore, user, values.username, values.bio);
-        toast({
-          title: 'Profile Created',
-          description: `Welcome, @${values.username}!`,
-        });
-        router.push('/feed');
-      }
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'An error occurred.',
-        description: error.message,
+    if (profile) {
+      // Update existing profile using a non-blocking call
+      const profileRef = doc(firestore, 'userProfiles', user.uid);
+      updateDocumentNonBlocking(profileRef, {
+          bio: values.bio,
       });
-    } finally {
+      toast({
+        title: 'Profile change submitted',
+        description: 'Your profile will be updated shortly.',
+      });
       setLoading(false);
+    } else {
+      // Create new profile
+      createProfile(firestore, user, values.username, values.bio)
+        .then(() => {
+            toast({
+              title: 'Profile Created',
+              description: `Welcome, @${values.username}!`,
+            });
+            router.push('/feed');
+        })
+        .catch((error: any) => {
+            toast({
+                variant: 'destructive',
+                title: 'An error occurred.',
+                description: error.message,
+            });
+        }).finally(() => {
+            setLoading(false);
+        });
     }
   }
 

@@ -17,48 +17,44 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { UserProfile } from './types';
 
-export async function createProfile(
+export function createProfile(
   db: Firestore,
   user: User,
   username: string,
   bio?: string
-) {
+): Promise<void> {
   const userProfileRef = doc(db, 'userProfiles', user.uid);
   const usernameRef = doc(db, 'usernames', username);
 
-  try {
-    await runTransaction(db, async (transaction) => {
-      const usernameDoc = await transaction.get(usernameRef);
-      if (usernameDoc.exists()) {
-        throw new Error(`Username @${username} is already taken.`);
-      }
+  // This function now returns the promise from the transaction.
+  return runTransaction(db, async (transaction) => {
+    const usernameDoc = await transaction.get(usernameRef);
+    if (usernameDoc.exists()) {
+      throw new Error(`Username @${username} is already taken.`);
+    }
 
-      const userProfileDoc = await transaction.get(userProfileRef);
-      if (userProfileDoc.exists()) {
-        // Profile already exists, just update it if needed
-        transaction.update(userProfileRef, { bio: bio || '' });
-      } else {
-        // New user profile
-        transaction.set(userProfileRef, {
-          userId: user.uid,
-          username: username,
-          email: user.email,
-          bio: bio || '',
-          createdAt: serverTimestamp(),
-        });
-      }
+    const userProfileDoc = await transaction.get(userProfileRef);
+    if (userProfileDoc.exists()) {
+      // This is an unexpected state for a new user creation flow.
+      // We will update, but this may indicate a previous failed signup.
+      transaction.update(userProfileRef, { bio: bio || '' });
+    } else {
+      // New user profile
+      transaction.set(userProfileRef, {
+        userId: user.uid,
+        username: username,
+        email: user.email,
+        bio: bio || '',
+        createdAt: serverTimestamp(),
+      });
+    }
 
-      // Create the username lock
-      transaction.set(usernameRef, { uid: user.uid });
-    });
-
+    // Create the username lock
+    transaction.set(usernameRef, { uid: user.uid });
+  }).then(() => {
     // After transaction, update the auth user's display name
-    await updateAuthProfile(user, { displayName: username });
-
-  } catch (e: any) {
-     // Re-throw transaction errors to be caught by the UI
-    throw e;
-  }
+    return updateAuthProfile(user, { displayName: username });
+  });
 }
 
 export async function getUserProfile(db: Firestore, userId: string): Promise<UserProfile | null> {
