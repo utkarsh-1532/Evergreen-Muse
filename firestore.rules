@@ -1,0 +1,157 @@
+/**
+ * # Firestore Security Rules
+ *
+ * ## Core Philosophy
+ * This ruleset enforces a security model tailored for a social media application.
+ * The primary goals are to ensure that users have exclusive control over their own
+ * content (profiles, posts) while allowing public readability for a social feed.
+ * It also implements a critical mechanism to guarantee username uniqueness across
+ * the platform.
+ *
+ * ## Data Structure
+ * The data is organized into three main collections:
+ * 1.  `/userProfiles/{userProfileId}`: A top-level collection storing public user
+ *     profile data. The document ID is the user's authentication UID.
+ * 2.  `/usernames/{username}`: A separate top-level collection used as a
+ *     technical index to enforce that every username is unique.
+ * 3.  `/users/{userId}/posts/{postId}`: Posts are nested under the user who
+ *     created them. This structure supports user-specific queries.
+ * 4.  `/users/{userId}/posts/{postId}/likes/{likeId}`: Likes are stored in a
+ *     subcollection under each post.
+ *
+ * ## Key Security Decisions
+ * -   **Default Deny**: All paths are closed by default. Access is granted
+ *     explicitly on a per-collection basis.
+ * -   **Public Read, Owner Write**: Social content like profiles and posts are
+ *     publicly readable to anyone, but can only be created, modified, or
+ *     deleted by the content owner.
+ * -   **Username Uniqueness**: Username uniqueness is enforced via a `/usernames`
+ *     collection. When a user creates a profile, they must transactionally create
+ *     a document in `/usernames/{username}`. The rules verify this transaction,
+ *     ensuring no two users can claim the same username. Usernames are immutable
+ *     after creation to simplify security.
+ * -   **Relational Integrity**: Rules validate that owner/author IDs within documents
+ *     (e.g., `authorId` on a Post) match the authenticated user during creation and
+ *     are immutable on update. This prevents data from being misattributed.
+ *
+ * ## Denormalization for Authorization
+ * To ensure fast and secure authorization checks, ownership data is denormalized.
+ * -   The `authorId` field is stored directly on each `Post` document.
+ * -   The `userId` field is stored on each `Like` document.
+ * This avoids slow and costly `get()` calls to parent documents and allows rules
+ * to make authorization decisions based solely on the document being accessed.
+ *
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the authenticated user's UID matches the provided userId.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if a document exists and the authenticated user is the owner.
+     * CRITICAL: Use for all state-changing operations (update, delete).
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the client is creating a unique username document as part
+     * of a transaction with the userProfile creation.
+     */
+    function isCreatingUniqueUsername(userId) {
+      return getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == userId;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection Rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description A private collection to enforce unique usernames.
+     *   Documents in this collection act as a lock on a given username.
+     * @path /usernames/{username}
+     * @allow (create) A user creating their own profile can create a username lock.
+     * @deny (read) No one can read or list this collection to prevent username scraping.
+     * @principle Enforces application-wide uniqueness for a critical field.
+     */
+    match /usernames/{username} {
+      allow get, list: if false;
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if false;
+      allow delete: if isExistingOwner(resource.data.uid);
+    }
+
+    /**
+     * @description Manages user profiles. Profiles are public, but only the
+     *   owner can create, update, or delete their own.
+     * @path /userProfiles/{userProfileId}
+     * @allow (get) Anyone can view a user's profile.
+     * @allow (create) An authenticated user can create their own profile if they
+     *   also create a unique username lock in the same transaction.
+     * @deny (update) A user cannot change another user's profile.
+     * @deny (update) A user cannot change their `userId` or `username` after creation.
+     * @principle Public read access with strict ownership for all write operations.
+     */
+    match /userProfiles/{userProfileId} {
+      allow get, list: if true;
+      allow create: if isOwner(userProfileId) && request.resource.data.userId == userProfileId && isCreatingUniqueUsername(userProfileId);
+      allow update: if isExistingOwner(userProfileId) && request.resource.data.userId == resource.data.userId && request.resource.data.username == resource.data.username;
+      allow delete: if isExistingOwner(userProfileId);
+    }
+
+    /**
+     * @description Manages user-created posts. Posts are publicly readable to
+     *   support a social feed but are only writable by their author.
+     * @path /users/{userId}/posts/{postId}
+     * @allow (get) Anyone can read any post if they know its full path.
+     * @allow (list) Anyone can list posts for any user. Collection group queries
+     *   will also work with this rule.
+     * @allow (create) A user can create a post under their own user ID.
+     * @deny (create) A user cannot create a post under another user's ID.
+     * @deny (update) A user cannot edit a post they did not author.
+     * @principle Enforces document ownership for writes while allowing public reads.
+     */
+    match /users/{userId}/posts/{postId} {
+      allow get, list: if true;
+      allow create: if isOwner(userId) && request.resource.data.authorId == userId;
+      allow update: if isExistingOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
+      allow delete: if isExistingOwner(resource.data.authorId);
+    }
+
+    /**
+     * @description Manages likes on a specific post. Anyone can read likes,
+     *   but only the user who created the like can create or delete it.
+     * @path /users/{userId}/posts/{postId}/likes/{likeId}
+     * @allow (get) Anyone can read the list of likes on a post.
+     * @allow (create) Any signed-in user can create a like for themself.
+     * @deny (create) A user cannot create a like on behalf of another user.
+     * @deny (delete) A user cannot delete someone else's like.
+     * @principle Allows any authenticated user to create a resource, but only the
+     *   creator can delete it.
+     */
+    match /users/{userId}/posts/{postId}/likes/{likeId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.postId == postId;
+      allow update: if false;
+      allow delete: if isExistingOwner(resource.data.userId);
+    }
+  }
+}
