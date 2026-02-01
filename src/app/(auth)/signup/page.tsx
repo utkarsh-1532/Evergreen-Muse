@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUpWithEmail } from "@/lib/firebase/auth";
 import { Button } from "@/components/ui/button";
@@ -111,12 +110,6 @@ export default function SignUpPage() {
           </Button>
         </form>
       </Form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="font-medium text-primary hover:underline">
-          Log in
-        </Link>
-      </p>
     </>
   );
 }
