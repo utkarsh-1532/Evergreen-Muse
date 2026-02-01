@@ -100,8 +100,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#">
-                <SidebarMenuButton>
+               <Link href="/habits">
+                <SidebarMenuButton isActive={pathname.startsWith('/habits')}>
                   <Target />
                   Habits
                 </SidebarMenuButton>

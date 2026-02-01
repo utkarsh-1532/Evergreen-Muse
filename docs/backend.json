@@ -156,6 +156,53 @@
         "postId",
         "timestamp"
       ]
+    },
+    "Habit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Habit",
+      "type": "object",
+      "description": "Represents a user's trackable daily habit.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the habit."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the user who owns the habit."
+        },
+        "title": {
+          "type": "string",
+          "description": "The description of the habit (e.g., 'Read 10 pages')."
+        },
+        "streak": {
+          "type": "number",
+          "description": "The current consecutive day streak for the habit."
+        },
+        "lastCompleted": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the last time the habit was marked as completed."
+        },
+        "completedDates": {
+          "type": "array",
+          "description": "A list of timestamps for each day the habit was completed.",
+          "items": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the habit was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -178,6 +225,26 @@
             {
               "name": "userProfileId",
               "description": "Unique identifier for the user profile document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/userProfiles/{userProfileId}/habits/{habitId}",
+        "definition": {
+          "entityName": "Habit",
+          "schema": {
+            "$ref": "#/backend/entities/Habit"
+          },
+          "description": "Stores individual habits for a user.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier for the user profile."
+            },
+            {
+              "name": "habitId",
+              "description": "The unique identifier for the habit."
             }
           ]
         }

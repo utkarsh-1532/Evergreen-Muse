@@ -9,9 +9,10 @@
  *
  * ## Data Structure
  * 1.  `/userProfiles/{userProfileId}`: Stores public user profile data.
- * 2.  `/usernames/{username}`: A technical collection to enforce unique usernames.
- * 3.  `/global_posts/{postId}`: A single, top-level collection for all public posts.
- * 4.  `/global_posts/{postId}/likes/{likeId}`: Likes are a subcollection of posts.
+ * 2.  `/userProfiles/{userProfileId}/habits/{habitId}`: Stores private habits for a user.
+ * 3.  `/usernames/{username}`: A technical collection to enforce unique usernames.
+ * 4.  `/global_posts/{postId}`: A single, top-level collection for all public posts.
+ * 5.  `/global_posts/{postId}/likes/{likeId}`: Likes are a subcollection of posts.
  *
  * ## Key Security Decisions
  * -   **Default Deny**: All paths are closed by default.
@@ -69,6 +70,13 @@ service cloud.firestore {
       allow create: if isOwner(userProfileId) && request.resource.data.userId == userProfileId && isCreatingUniqueUsername(userProfileId);
       allow update: if isExistingOwner(userProfileId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bio', 'profilePicUrl']);
       allow delete: if isExistingOwner(userProfileId);
+
+      /**
+       * @description Manages a user's private habits.
+       */
+      match /habits/{habitId} {
+        allow read, write, delete: if isOwner(userProfileId);
+      }
     }
 
     /**

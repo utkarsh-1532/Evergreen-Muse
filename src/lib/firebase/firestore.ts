@@ -15,15 +15,18 @@ import {
   FieldValue,
   arrayUnion,
   arrayRemove,
+  addDoc,
 } from 'firebase/firestore';
 import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import type { Post, UserProfile } from './types';
+import type { Post, UserProfile, Habit } from './types';
 import { POSTS_COLLECTION } from '@/lib/constants';
 import { deleteObject, ref as storageRef } from 'firebase/storage';
 import type { Storage } from 'firebase/storage';
+import { WithId } from '@/firebase/firestore/use-collection';
+import { isToday, isYesterday } from 'date-fns';
 
 export function createProfile(
   db: Firestore,
@@ -130,4 +133,64 @@ export function toggleLikeOnPost(firestore: Firestore, postId: string, userId: s
     likeIds: isLiked ? arrayRemove(userId) : arrayUnion(userId)
   };
   updateDocumentNonBlocking(postRef, updateData);
+}
+
+export async function addHabit(db: Firestore, userId: string, title: string): Promise<void> {
+  const habitsCollectionRef = collection(db, 'userProfiles', userId, 'habits');
+  const newHabit = {
+    userId,
+    title,
+    streak: 0,
+    completedDates: [],
+    lastCompleted: null,
+    createdAt: serverTimestamp(),
+  };
+  await addDoc(habitsCollectionRef, newHabit);
+}
+
+export function toggleHabit(db: Firestore, userId: string, habit: WithId<Habit>) {
+  const habitRef = doc(db, 'userProfiles', userId, 'habits', habit.id);
+  
+  const isCompletedToday = habit.lastCompleted ? isToday(habit.lastCompleted.toDate()) : false;
+  
+  const updateData: any = {};
+
+  if (isCompletedToday) {
+    // UNDO: Mark as not completed today
+    updateData.streak = Math.max(0, habit.streak - 1);
+    
+    // Find the previous completion date if it exists
+    const previousDates = habit.completedDates
+      .map(t => t.toDate())
+      .filter(d => !isToday(d)) // Filter out today's completion
+      .sort((a, b) => b.getTime() - a.getTime());
+      
+    updateData.lastCompleted = previousDates[0] || null;
+    updateData.completedDates = arrayRemove(habit.lastCompleted);
+
+  } else {
+    // COMPLETE: Mark as completed today
+    const wasCompletedYesterday = habit.lastCompleted ? isYesterday(habit.lastCompleted.toDate()) : false;
+    
+    if (wasCompletedYesterday) {
+      updateData.streak = habit.streak + 1;
+    } else {
+      updateData.streak = 1;
+    }
+    
+    updateData.lastCompleted = serverTimestamp();
+    updateData.completedDates = arrayUnion(serverTimestamp());
+  }
+  
+  updateDocumentNonBlocking(habitRef, updateData);
+}
+
+export function checkAndResetHabitStreak(db: Firestore, userId: string, habit: WithId<Habit>) {
+    if (habit.streak > 0 && habit.lastCompleted) {
+        const lastDay = habit.lastCompleted.toDate();
+        if (!isToday(lastDay) && !isYesterday(lastDay)) {
+            const habitRef = doc(db, 'userProfiles', userId, 'habits', habit.id);
+            updateDocumentNonBlocking(habitRef, { streak: 0 });
+        }
+    }
 }

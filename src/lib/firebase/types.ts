@@ -33,3 +33,13 @@ export type Like = {
     postId: string;
     timestamp: FieldValue;
 };
+
+export type Habit = {
+    id: string;
+    userId: string;
+    title: string;
+    streak: number;
+    lastCompleted: Timestamp | null;
+    completedDates: Timestamp[];
+    createdAt: Timestamp;
+};
