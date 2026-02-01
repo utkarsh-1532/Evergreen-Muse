@@ -12,11 +12,14 @@ import {
   updateDoc,
   collection,
   deleteDoc,
+  FieldValue,
+  arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { Post, UserProfile } from './types';
 import { POSTS_COLLECTION } from '@/lib/constants';
 import { deleteObject, ref as storageRef } from 'firebase/storage';
@@ -118,4 +121,13 @@ export async function deletePost(
   // Then, delete the post document from Firestore
   const postRef = doc(db, POSTS_COLLECTION, postId);
   await deleteDoc(postRef);
+}
+
+
+export function toggleLikeOnPost(firestore: Firestore, postId: string, userId: string, isLiked: boolean) {
+  const postRef = doc(firestore, POSTS_COLLECTION, postId);
+  const updateData = {
+    likeIds: isLiked ? arrayRemove(userId) : arrayUnion(userId)
+  };
+  updateDocumentNonBlocking(postRef, updateData);
 }

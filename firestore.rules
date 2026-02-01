@@ -73,16 +73,14 @@ service cloud.firestore {
 
     /**
      * @description A single, top-level collection for all public posts.
-     * @path /global_posts/{postId}
-     * @allow (read) Any signed-in user can read all posts for the feed.
-     * @allow (create) A user can create a post, setting themself as the author.
-     * @deny (update) A user cannot change the author of a post.
-     * @allow (delete) The author can delete their own post.
      */
     match /global_posts/{postId} {
       allow get, list: if isSignedIn();
       allow create: if isOwner(request.resource.data.authorId);
+      // Allow owner to update their post (but not change the author)
       allow update: if isExistingOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
+      // Allow any signed-in user to update ONLY the likeIds field.
+      allow update: if isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeIds']);
       allow delete: if isExistingOwner(resource.data.authorId);
     }
 

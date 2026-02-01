@@ -17,14 +17,14 @@ export const PostHeader = ({ post }: PostHeaderProps) => {
 
     const getInitials = (name?: string | null) => {
         if (!name) return 'U';
-        return name.substring(0, 2).toUpperCase();
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
     return (
         <div className="flex items-start justify-between">
-            <div className="flex items-center gap-4">
-                <Avatar>
-                    <AvatarImage src={post.authorProfilePicUrl} />
+            <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 border">
+                    <AvatarImage src={post.authorProfilePicUrl} alt={post.authorUsername} />
                     <AvatarFallback>{getInitials(post.authorUsername)}</AvatarFallback>
                 </Avatar>
                 <div>
