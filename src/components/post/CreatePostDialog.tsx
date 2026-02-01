@@ -31,7 +31,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Plus, Type, Image as ImageIcon, Music, Search, X } from 'lucide-react';
 import { Post } from '@/lib/firebase/types';
 import { useUserProfile } from '@/hooks/use-user-profile';
-import { uploadImage } from '@/lib/firebase/storage';
+import { uploadImageWithProgress } from '@/lib/firebase/storage';
+import { compressImage } from '@/lib/image-compression';
+import { Progress } from '@/components/ui/progress';
 import Image from 'next/image';
 
 // Schemas for each post type
@@ -86,6 +88,8 @@ export function CreatePostDialog() {
   
   // Image states
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Music search states
   const [searchTerm, setSearchTerm] = useState('');
@@ -141,6 +145,8 @@ export function CreatePostDialog() {
     setSearchTerm('');
     setSearchResults([]);
     setIsSongSelected(false);
+    setIsUploading(false);
+    setUploadProgress(0);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,11 +194,29 @@ export function CreatePostDialog() {
           postData.text = values.text;
           break;
         case 'image':
+          setIsUploading(true);
+          setUploadProgress(0);
+          
+          toast({
+            title: 'Compressing image...',
+            description: 'Getting your image ready for upload.',
+          });
+          const compressedFile = await compressImage(values.file, {
+            maxWidth: 1920,
+            quality: 0.8,
+          });
+
           toast({
             title: 'Uploading image...',
             description: 'Please wait, this may take a moment.',
           });
-          const imageUrl = await uploadImage(storage, values.file, user.uid);
+          const imageUrl = await uploadImageWithProgress(
+            storage, 
+            compressedFile, 
+            user.uid,
+            (progress) => setUploadProgress(progress)
+          );
+
           postData.imageUrl = imageUrl;
           postData.imageCaption = values.imageCaption;
           postData.text = values.text || '';
@@ -211,13 +235,14 @@ export function CreatePostDialog() {
       toast({ title: 'Post submitted!', description: 'Your post will appear shortly.' });
       setIsOpen(false);
       form.reset();
-      setImagePreview(null);
-      setSearchTerm('');
-      setIsSongSelected(false);
+      // Reset all states
+      handleTabChange('text');
     } catch (error: any) {
         toast({ variant: 'destructive', title: 'Failed to create post', description: error.message });
     } finally {
         setLoading(false);
+        setIsUploading(false);
+        setUploadProgress(0);
     }
   }
 
@@ -258,20 +283,26 @@ export function CreatePostDialog() {
                  <FormField control={form.control} name="file" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Upload Image</FormLabel>
-                        <FormControl><Input type="file" accept="image/*" onChange={handleFileChange} /></FormControl>
+                        <FormControl><Input type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading} /></FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
-                {imagePreview && (
+                {isUploading && (
+                  <div className="space-y-2">
+                    <Progress value={uploadProgress} />
+                    <p className="text-sm text-muted-foreground text-center">{Math.round(uploadProgress)}% uploaded</p>
+                  </div>
+                )}
+                {imagePreview && !isUploading && (
                     <div className="relative aspect-video w-full overflow-hidden rounded-md border">
                         <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="cover" />
                     </div>
                 )}
                  <FormField control={form.control} name="imageCaption" render={({ field }) => (
-                    <FormItem><FormLabel>Caption (Optional)</FormLabel><FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Caption (Optional)</FormLabel><FormControl><Input placeholder="A witty caption" {...field} value={field.value ?? ''} disabled={isUploading} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="text" render={({ field }) => (
-                    <FormItem><FormLabel>Additional thoughts (Optional)</FormLabel><FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Additional thoughts (Optional)</FormLabel><FormControl><Textarea placeholder="Add more context to your image..." {...field} value={field.value ?? ''} disabled={isUploading} /></FormControl><FormMessage /></FormItem>
                 )} />
               </TabsContent>
 
@@ -314,8 +345,8 @@ export function CreatePostDialog() {
 
             </Tabs>
             <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Loader2 className="animate-spin" /> : 'Post'}
+              <Button type="submit" disabled={loading || isUploading}>
+                {loading || isUploading ? <Loader2 className="animate-spin" /> : 'Post'}
               </Button>
             </DialogFooter>
           </form>
