@@ -5,24 +5,51 @@ import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { PostHeader } from './PostHeader';
 import { PostMedia } from './PostMedia';
 import { PostActions } from './PostActions';
+import { MiniPlayer } from './MiniPlayer';
+import { cn } from '@/lib/utils';
 
 interface PostCardProps {
   post: Post;
+  priority?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, priority }: PostCardProps) {
+  const hasSong = post.songTitle && post.artistName && post.albumArtUrl && post.audioPreviewUrl;
   
   return (
-    <Card className="transition-shadow shadow-md hover:shadow-lg">
+    <Card className="rounded-3xl overflow-hidden shadow-xl shadow-black/5 hover:shadow-black/10 transition-all duration-300 will-change-transform">
       <CardHeader className="p-4">
         <PostHeader post={post} />
       </CardHeader>
-      <CardContent className="space-y-4 p-4 pt-0">
-        {post.title && <h3 className="text-xl font-semibold leading-snug">{post.title}</h3>}
-        
-        <PostMedia post={post} />
+      
+      <CardContent className="p-0">
+        <div className="relative">
+          <PostMedia post={post} priority={priority} />
 
-        {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
+          {hasSong && (
+            <div className={cn(
+                'z-10',
+                post.imageUrl ? 'absolute bottom-4 left-4 right-4' : 'px-4 pb-4'
+            )}>
+              <MiniPlayer 
+                songTitle={post.songTitle!}
+                artistName={post.artistName!}
+                albumArtUrl={post.albumArtUrl!}
+                audioPreviewUrl={post.audioPreviewUrl!}
+              />
+            </div>
+          )}
+        </div>
+        
+        {(post.title || post.text || post.imageCaption) && (
+            <div className="space-y-4 p-4">
+                {post.title && <h3 className="text-xl font-semibold leading-snug font-headline">{post.title}</h3>}
+                
+                {post.imageUrl && post.imageCaption && <p className="text-sm text-muted-foreground italic">{post.imageCaption}</p>}
+
+                {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
+            </div>
+        )}
         
       </CardContent>
       <CardFooter className="flex items-center gap-2 border-t p-4">

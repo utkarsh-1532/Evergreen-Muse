@@ -29,7 +29,7 @@ export const PostHeader = ({ post }: PostHeaderProps) => {
                 </Avatar>
                 <div>
                     <p className="font-semibold">{post.authorUsername || 'Anonymous'}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
                     {post.timestamp ? formatDistanceToNow( (post.timestamp as any).toDate(), { addSuffix: true }) : 'just now'}
                     </p>
                 </div>

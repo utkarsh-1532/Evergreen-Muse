@@ -43,8 +43,8 @@ export function PostFeed() {
 
   return (
     <div className="space-y-6">
-      {posts.map((post: WithId<Post>) => (
-        <PostCard key={post.id} post={post} />
+      {posts.map((post: WithId<Post>, index: number) => (
+        <PostCard key={post.id} post={post} priority={index < 2} />
       ))}
     </div>
   );

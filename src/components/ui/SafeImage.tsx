@@ -5,7 +5,7 @@ import Image, { ImageProps } from 'next/image';
 import { ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export function SafeImage(props: ImageProps) {
+export function SafeImage(props: ImageProps & { priority?: boolean }) {
   const [hasError, setHasError] = useState(false);
 
   if (hasError || !props.src) {
@@ -22,6 +22,7 @@ export function SafeImage(props: ImageProps) {
   return (
     <Image
       {...props}
+      priority={props.priority}
       onError={() => {
         setHasError(true);
       }}
