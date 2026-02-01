@@ -38,37 +38,44 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
     audioRef.current = new Audio(audioPreviewUrl);
     const audio = audioRef.current;
 
-    const onCanPlay = () => setIsLoading(false);
-    const onPlay = () => {
+    const onPlaying = () => {
+        setIsLoading(false);
         setIsPlaying(true);
         mediaEmitter.emit('audio-play-start', audioPreviewUrl);
     };
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
-    const onLoading = () => setIsLoading(true);
+    const onPause = () => {
+      setIsLoading(false);
+      setIsPlaying(false);
+    };
+    const onEnded = () => {
+      setIsLoading(false);
+      setIsPlaying(false);
+    };
+    const onWaiting = () => {
+      setIsLoading(true);
+    };
 
-    audio.addEventListener('canplay', onCanPlay);
-    audio.addEventListener('play', onPlay);
+    audio.addEventListener('playing', onPlaying);
     audio.addEventListener('pause', onPause);
     audio.addEventListener('ended', onEnded);
-    audio.addEventListener('waiting', onLoading);
-    audio.addEventListener('stalled', onLoading);
+    audio.addEventListener('waiting', onWaiting);
 
     return () => {
-      audio.removeEventListener('canplay', onCanPlay);
-      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('playing', onPlaying);
       audio.removeEventListener('pause', onPause);
       audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('waiting', onLoading);
-      audio.removeEventListener('stalled', onLoading);
+      audio.removeEventListener('waiting', onWaiting);
       audio.pause();
     };
   }, [audioPreviewUrl]);
 
   const handlePlayClick = () => {
     if (audioRef.current) {
-      setIsLoading(true);
-      audioRef.current.play().catch(() => setIsLoading(false)); // Handle potential play errors
+      setIsLoading(true); // Show loading indicator immediately
+      audioRef.current.play().catch((e) => {
+        console.error("Audio playback failed:", e);
+        setIsLoading(false); // If it fails to play, stop loading
+      });
     }
   };
 
