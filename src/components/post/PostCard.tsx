@@ -14,7 +14,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const AuthorHeader = ({ authorId }: { authorId: string }) => {
+const AuthorHeader = ({ authorId, timestamp }: { authorId: string, timestamp: any }) => {
     const { profile: authorProfile, isLoading: isAuthorLoading } = useUserProfileById(authorId);
 
     const getInitials = (name?: string | null) => {
@@ -47,7 +47,7 @@ const AuthorHeader = ({ authorId }: { authorId: string }) => {
             <div>
               <p className="font-semibold">{authorProfile?.username || 'Anonymous'}</p>
               <p className="text-sm text-muted-foreground">
-                {formatDistanceToNow( (post.timestamp as any).toDate(), { addSuffix: true })}
+                {timestamp ? formatDistanceToNow( (timestamp as any).toDate(), { addSuffix: true }) : 'just now'}
               </p>
             </div>
         </div>
@@ -60,7 +60,7 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Card>
       <CardHeader>
-        <AuthorHeader authorId={post.authorId} />
+        <AuthorHeader authorId={post.authorId} timestamp={post.timestamp} />
       </CardHeader>
       <CardContent className="space-y-4">
         {post.title && <h3 className="text-xl font-semibold leading-snug">{post.title}</h3>}

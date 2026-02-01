@@ -128,7 +128,7 @@ service cloud.firestore {
      * @principle Enforces document ownership for writes while allowing public reads.
      */
     match /users/{userId}/posts/{postId} {
-      allow get: if true;
+      allow get: if isSignedIn();
       allow create: if isOwner(userId) && request.resource.data.authorId == userId;
       allow update: if isExistingOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
       allow delete: if isExistingOwner(resource.data.authorId);
@@ -141,7 +141,7 @@ service cloud.firestore {
      * @principle Collection group queries require their own rules.
      */
      match /{path=**}/posts/{postId} {
-       allow list: if true;
+       allow list: if isSignedIn();
      }
 
     /**
