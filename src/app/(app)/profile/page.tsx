@@ -84,6 +84,7 @@ export default function ProfilePage() {
               title: 'Profile Created',
               description: `Welcome, @${values.username}! You can now navigate to other pages.`,
             });
+            router.refresh();
         })
         .catch((error: any) => {
             toast({
