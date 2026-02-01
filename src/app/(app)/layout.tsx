@@ -63,7 +63,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Link href="/feed" legacyBehavior passHref>
+              <Link href="/feed">
                 <SidebarMenuButton isActive={pathname.startsWith('/feed')}>
                   <Home />
                   Dashboard
@@ -71,7 +71,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
              <SidebarMenuItem>
-              <Link href="/social" legacyBehavior passHref>
+              <Link href="/social">
                 <SidebarMenuButton isActive={pathname.startsWith('/social')}>
                   <Users />
                   Social
@@ -79,7 +79,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Link href="/profile" legacyBehavior passHref>
+              <Link href="/profile">
                 <SidebarMenuButton isActive={pathname.startsWith('/profile')}>
                   <UserCircle />
                   Profile
@@ -87,7 +87,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#" legacyBehavior passHref>
+               <Link href="#">
                 <SidebarMenuButton>
                   <PenSquare />
                   Journal
@@ -95,7 +95,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#" legacyBehavior passHref>
+               <Link href="#">
                 <SidebarMenuButton>
                   <Target />
                   Habits
@@ -103,7 +103,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
-               <Link href="#" legacyBehavior passHref>
+               <Link href="#">
                 <SidebarMenuButton>
                   <BookOpen />
                   Learning
