@@ -30,6 +30,7 @@ export interface UseCollectionResult<T> {
 */
 export interface InternalQuery extends Query<DocumentData> {
   _query: {
+    collectionGroup: string | null;
     path: {
       canonicalString(): string;
       toString(): string;
@@ -85,11 +86,14 @@ export function useCollection<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
-        // This logic extracts the path from either a ref or a query
+        const internalQuery = memoizedTargetRefOrQuery as unknown as InternalQuery;
+        // This logic extracts the path from either a ref or a query, special-casing collection group queries.
         const path: string =
           memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
+            : internalQuery._query.collectionGroup
+              ? `collection group '${internalQuery._query.collectionGroup}'`
+              : internalQuery._query.path.canonicalString();
 
         const contextualError = new FirestorePermissionError({
           operation: 'list',
