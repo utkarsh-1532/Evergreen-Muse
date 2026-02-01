@@ -305,7 +305,7 @@ export function CreatePostDialog() {
                 
                 <TabsContent value="image" className="pt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
+                      <div className="space-y-4 max-w-[320px]">
                           <FormField
                               control={form.control}
                               name="file"
@@ -317,7 +317,7 @@ export function CreatePostDialog() {
                                               {!imagePreview ? (
                                                   <label
                                                       htmlFor="file-upload"
-                                                      className="flex flex-col items-center justify-center w-full h-96 border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:bg-muted/50 transition-colors"
+                                                      className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer text-muted-foreground hover:bg-muted/50 transition-colors"
                                                   >
                                                       <ImageIcon className="w-12 h-12" />
                                                       <p className="mt-2 text-sm font-medium">Click to upload</p>

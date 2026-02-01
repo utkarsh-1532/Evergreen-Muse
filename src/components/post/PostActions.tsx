@@ -1,7 +1,7 @@
 'use client';
 import { Button } from "@/components/ui/button";
 import { Post } from "@/lib/firebase/types";
-import { Heart, MessageCircle, Share2, Bookmark } from "lucide-react";
+import { Heart, MessageCircle, Bookmark } from "lucide-react";
 
 interface PostActionsProps {
     post: Post;
@@ -20,11 +20,6 @@ export const PostActions = ({ post }: PostActionsProps) => {
               <MessageCircle className="mr-2 h-5 w-5" strokeWidth={1.5} />
               <span className="sr-only">Comment</span>
               <span>Comment</span>
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Share2 className="mr-2 h-5 w-5" strokeWidth={1.5} />
-              <span className="sr-only">Share</span>
-              <span>Share</span>
             </Button>
           </div>
 

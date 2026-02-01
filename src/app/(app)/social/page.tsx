@@ -9,7 +9,7 @@ export default function SocialPage() {
   const { profile } = useUserProfile();
 
   return (
-    <div className="max-w-md mx-auto space-y-6">
+    <div className="max-w-[470px] mx-auto space-y-6">
         <div className="flex justify-between items-center">
             <div>
                 <h1 className="text-2xl font-bold font-headline">Social Feed</h1>
