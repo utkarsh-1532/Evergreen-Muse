@@ -188,6 +188,10 @@ export function CreatePostDialog() {
           postData.text = values.text;
           break;
         case 'image':
+          toast({
+            title: 'Uploading image...',
+            description: 'Please wait, this may take a moment.',
+          });
           const imageUrl = await uploadImage(storage, values.file, user.uid);
           postData.imageUrl = imageUrl;
           postData.imageCaption = values.imageCaption;
