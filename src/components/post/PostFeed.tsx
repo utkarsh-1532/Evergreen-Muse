@@ -2,7 +2,7 @@
 
 import { useFirestore, useMemoFirebase } from '@/firebase';
 import { useCollection, WithId } from '@/firebase/firestore/use-collection';
-import { collectionGroup, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { PostCard } from './PostCard';
 import { Post } from '@/lib/firebase/types';
 import { Loader2 } from 'lucide-react';
@@ -12,8 +12,8 @@ export function PostFeed() {
 
   const postsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // Query the 'posts' collection group, ordering by timestamp in descending order
-    return query(collectionGroup(firestore, 'posts'), orderBy('timestamp', 'desc'));
+    // Query the top-level 'global_posts' collection
+    return query(collection(firestore, 'global_posts'), orderBy('timestamp', 'desc'));
   }, [firestore]);
 
   const { data: posts, isLoading, error } = useCollection<Post>(postsQuery);

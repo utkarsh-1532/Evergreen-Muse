@@ -163,18 +163,14 @@
         }
       },
       {
-        "path": "/users/{userId}/posts/{postId}",
+        "path": "/global_posts/{postId}",
         "definition": {
           "entityName": "Post",
           "schema": {
             "$ref": "#/backend/entities/Post"
           },
-          "description": "Stores user-generated posts. Includes 'authorId' for authorization independence.",
+          "description": "Stores all user-generated posts in a single, top-level collection for the global social feed.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user who created the post."
-            },
             {
               "name": "postId",
               "description": "The unique identifier for the post."
@@ -183,7 +179,7 @@
         }
       },
       {
-        "path": "/users/{userId}/posts/{postId}/likes/{likeId}",
+        "path": "/global_posts/{postId}/likes/{likeId}",
         "definition": {
           "entityName": "Like",
           "schema": {
@@ -191,10 +187,6 @@
           },
           "description": "Stores likes for each post. Includes 'userId' to track who liked the post.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user who created the post."
-            },
             {
               "name": "postId",
               "description": "The unique identifier for the post."
@@ -207,6 +199,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support a social page with user profiles, posts (including text, images, and music), and likes. It prioritizes authorization independence and efficient data retrieval.\n\n*   **User Profiles:** User profiles are stored in a dedicated collection (`userProfiles`) to ensure uniqueness of usernames and separation of concerns. The `userId` field establishes a 1:1 relationship with the Firebase Authentication user ID.\n*   **Posts:** Posts are stored in a collection group (`posts`). Each user has their own collection of posts (`/users/{userId}/posts/{postId}`). The `authorId` field in each post ensures clear ownership. This allows for efficient querying of posts by a specific user, and also for aggregation of all posts across all users (using collection groups).\n*   **Likes:** Likes are stored as subcollections under each post (`/users/{userId}/posts/{postId}/likes/{likeId}`). Each like document contains the `userId` of the user who liked the post and a timestamp. This structure allows for efficient querying of likes for a specific post.\n\n**Authorization Independence:**\n\n*   The structure avoids hierarchical authorization dependencies by storing the `authorId` directly within each post document. This allows security rules to validate the author of a post without needing to perform expensive `get()` operations to retrieve the user's information from a parent document.\n\n**QAPs (Rules are not Filters):**\n\n*   The structure supports secure `list` operations by segregating data based on ownership. Listing posts is secured by checking the `authorId` against the requesting user's `uid`. Listing likes is secured by checking if the user has permission to view the post and/or has liked the post. The use of collection groups allows for efficient querying of all posts, and security rules can be applied to collection groups to ensure that only authorized users can access the data."
+    "reasoning": "The Firestore structure has been simplified to use a top-level `global_posts` collection for the social feed. This avoids the need for complex and potentially error-prone collection group queries, resolving persistent permission issues.\n\n*   **User Profiles:** Stored in a dedicated `userProfiles` collection to ensure username uniqueness and separation of concerns.\n*   **Global Posts:** All posts from all users are stored in a single `global_posts` collection. This makes querying for the main social feed simple and efficient, requiring only a basic collection query. The `authorId` field within each post document maintains clear ownership.\n*   **Likes:** Likes are now stored as subcollections under each post in the `global_posts` collection (`/global_posts/{postId}/likes/{likeId}`). This structure allows for efficient querying of likes for a specific post.\n\nThis simplified, denormalized structure prioritizes efficient read operations for the main feed, which is the most common use case, and resolves previous security rule complexities."
   }
 }

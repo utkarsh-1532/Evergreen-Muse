@@ -75,7 +75,7 @@ export function createPost(
   if (!user.uid) {
     throw new Error('User must be authenticated to create a post.');
   }
-  const postsCollectionRef = collection(db, 'users', user.uid, 'posts');
+  const postsCollectionRef = collection(db, 'global_posts');
 
   const newPostData = {
     ...postData,
