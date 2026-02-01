@@ -1,13 +1,13 @@
 "use client";
 
-import { useAuth } from "@/hooks/use-auth";
+import { useUser } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ArrowRight, BookOpen, PenSquare, Target } from "lucide-react";
 import Link from 'next/link';
 
 export default function FeedPage() {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   return (
     <div className="space-y-6">

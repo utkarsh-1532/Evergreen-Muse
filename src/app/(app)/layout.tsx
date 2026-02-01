@@ -1,11 +1,11 @@
 'use client';
 
-import { useAuth } from '@/hooks/use-auth';
+import { useUser, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { BookOpen, Home, LogOut, PenSquare, Target } from 'lucide-react';
+import { BookOpen, Home, LogOut, PenSquare, Target, UserCircle, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
-import { doSignOut } from '@/lib/firebase/auth';
+import { signOut } from 'firebase/auth';
 import {
   SidebarProvider,
   Sidebar,
@@ -23,22 +23,23 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isUserLoading && !user) {
       router.replace('/login');
     }
-  }, [user, loading, router]);
+  }, [user, isUserLoading, router]);
 
   const handleSignOut = async () => {
-    await doSignOut();
+    await signOut(auth);
     router.push('/login');
   };
   
-  if (loading || !user) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -66,6 +67,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton isActive={pathname.startsWith('/feed')}>
                   <Home />
                   Dashboard
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <Link href="/social" legacyBehavior passHref>
+                <SidebarMenuButton isActive={pathname.startsWith('/social')}>
+                  <Users />
+                  Social
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Link href="/profile" legacyBehavior passHref>
+                <SidebarMenuButton isActive={pathname.startsWith('/profile')}>
+                  <UserCircle />
+                  Profile
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

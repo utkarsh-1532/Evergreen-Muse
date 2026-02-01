@@ -19,6 +19,11 @@
           "description": "The user's unique username.",
           "format": "string"
         },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
         "profilePicUrl": {
           "type": "string",
           "description": "URL of the user's profile picture.",
@@ -27,12 +32,19 @@
         "bio": {
           "type": "string",
           "description": "A short biography or description of the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the profile was created.",
+          "format": "date-time"
         }
       },
       "required": [
         "id",
         "userId",
-        "username"
+        "username",
+        "email",
+        "createdAt"
       ]
     },
     "Post": {

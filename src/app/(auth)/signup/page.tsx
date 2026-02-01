@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signUpWithEmail, signInWithEmail } from "@/lib/firebase/auth";
+import { useAuth } from "@/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,6 +38,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,10 +52,8 @@ export default function SignUpPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      await signUpWithEmail(values.email, values.password);
-      // Also sign in the user after they sign up
-      await signInWithEmail(values.email, values.password);
-      router.push("/feed");
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      router.push("/profile");
     } catch (error: any) {
       toast({
         variant: "destructive",
