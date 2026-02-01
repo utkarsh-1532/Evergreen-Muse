@@ -98,32 +98,32 @@ export function MiniPlayer({ songTitle, artistName, albumArtUrl, audioPreviewUrl
   };
   
   return (
-    <div className="flex items-center gap-3 rounded-full border border-white/20 bg-background/80 p-2 shadow-lg backdrop-blur-md">
-      <Image src={albumArtUrl} alt={songTitle} width={48} height={48} className="rounded-full object-cover aspect-square" />
+    <div className="flex items-center gap-2 rounded-full border border-white/20 bg-background/80 p-1 pr-2 shadow-lg backdrop-blur-md">
+      <Image src={albumArtUrl} alt={songTitle} width={32} height={32} className="rounded-full object-cover aspect-square" />
       
       <div className="flex-1 min-w-0">
-        <p className="font-semibold truncate text-sm text-foreground">{songTitle}</p>
-        <p className="text-xs text-muted-foreground truncate">{artistName}</p>
+        <p className="font-semibold truncate text-xs text-foreground">{songTitle}</p>
+        <p className="text-[10px] text-muted-foreground truncate">{artistName}</p>
       </div>
       
-      <div className={cn("flex items-center justify-center gap-0.5 h-4 w-5", !isPlaying && "opacity-50")}>
-        <span className={cn("w-1 h-full bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.3s]")} />
-        <span className={cn("w-1 h-2/3 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.1s]")} />
-        <span className={cn("w-1 h-full bg-primary rounded-full", isPlaying && "animate-pulse")} />
-        <span className={cn("w-1 h-1/2 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.2s]")} />
+      <div className={cn("flex items-center justify-center gap-0.5 h-3 w-4", !isPlaying && "opacity-50")}>
+        <span className={cn("w-0.5 h-full bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.3s]")} />
+        <span className={cn("w-0.5 h-2/3 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.1s]")} />
+        <span className={cn("w-0.5 h-full bg-primary rounded-full", isPlaying && "animate-pulse")} />
+        <span className={cn("w-0.5 h-1/2 bg-primary rounded-full", isPlaying && "animate-pulse [animation-delay:-0.2s]")} />
       </div>
 
       {isLoading ? (
-        <Button variant="ghost" size="icon" className="rounded-full w-10 h-10 text-foreground" disabled>
-          <Loader2 className="h-5 w-5 animate-spin" />
+        <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 text-foreground" disabled>
+          <Loader2 className="h-4 w-4 animate-spin" />
         </Button>
       ) : isPlaying ? (
-        <Button variant="ghost" size="icon" onClick={handlePauseClick} className="rounded-full w-10 h-10 text-foreground">
-          <Pause className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={handlePauseClick} className="rounded-full w-8 h-8 text-foreground">
+          <Pause className="h-4 w-4" />
         </Button>
       ) : (
-        <Button variant="ghost" size="icon" onClick={handlePlayClick} className="rounded-full w-10 h-10 text-foreground">
-          <Play className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={handlePlayClick} className="rounded-full w-8 h-8 text-foreground">
+          <Play className="h-4 w-4" />
         </Button>
       )}
     </div>

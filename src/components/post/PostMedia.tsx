@@ -13,14 +13,14 @@ export const PostMedia = ({ post, priority }: PostMediaProps) => {
     }
 
     return (
-        <div className="aspect-[4/5] relative w-full bg-muted">
+        <div className="aspect-square relative w-full bg-muted ring-1 ring-black/5">
             <SafeImage 
                 src={post.imageUrl} 
                 alt={post.imageCaption || 'Post image'} 
                 fill 
                 className="object-cover"
                 priority={priority}
-                sizes="(max-width: 640px) 100vw, 448px"
+                sizes="(max-width: 768px) 100vw, 448px"
             />
         </div>
     )

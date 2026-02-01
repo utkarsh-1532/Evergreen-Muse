@@ -321,15 +321,15 @@ export function CreatePostDialog() {
                                                   >
                                                       <ImageIcon className="w-12 h-12" />
                                                       <p className="mt-2 text-sm font-medium">Click to upload</p>
-                                                      <p className="text-xs">Image will be cropped to 4:5</p>
+                                                      <p className="text-xs">Image will be cropped to 1:1</p>
                                                   </label>
                                               ) : (
-                                                  <div className="relative w-full overflow-hidden border rounded-lg aspect-[4/5] bg-muted">
+                                                  <div className="relative w-full overflow-hidden border rounded-lg aspect-square bg-muted">
                                                       <Cropper
                                                           image={imagePreview}
                                                           crop={crop}
                                                           zoom={zoom}
-                                                          aspect={4 / 5}
+                                                          aspect={1}
                                                           onCropChange={setCrop}
                                                           onZoomChange={setZoom}
                                                           onCropComplete={onCropComplete}

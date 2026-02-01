@@ -28,7 +28,7 @@ export const PostHeader = ({ post }: PostHeaderProps) => {
                     <AvatarFallback>{getInitials(post.authorUsername)}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <p className="font-semibold">{post.authorUsername || 'Anonymous'}</p>
+                    <p className="text-base font-bold">{post.authorUsername || 'Anonymous'}</p>
                     <p className="text-xs text-muted-foreground uppercase tracking-widest">
                     {post.timestamp ? formatDistanceToNow( (post.timestamp as any).toDate(), { addSuffix: true }) : 'just now'}
                     </p>

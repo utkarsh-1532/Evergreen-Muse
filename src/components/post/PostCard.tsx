@@ -29,7 +29,7 @@ export function PostCard({ post, priority }: PostCardProps) {
           {hasSong && (
             <div className={cn(
                 'z-10',
-                post.imageUrl ? 'absolute bottom-4 left-4 right-4' : 'px-4 pb-4'
+                post.imageUrl ? 'absolute top-4 right-4' : 'px-4 pb-4'
             )}>
               <MiniPlayer 
                 songTitle={post.songTitle!}
@@ -47,12 +47,12 @@ export function PostCard({ post, priority }: PostCardProps) {
                 
                 {post.imageUrl && post.imageCaption && <p className="text-sm text-muted-foreground italic">{post.imageCaption}</p>}
 
-                {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed">{post.text}</p>}
+                {post.text && <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-foreground/90">{post.text}</p>}
             </div>
         )}
         
       </CardContent>
-      <CardFooter className="flex items-center gap-2 border-t p-4">
+      <CardFooter className="flex items-center border-t p-2">
           <PostActions post={post} />
       </CardFooter>
     </Card>
