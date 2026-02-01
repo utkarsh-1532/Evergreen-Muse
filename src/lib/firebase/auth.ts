@@ -1,6 +1,5 @@
 import {
   createUserWithEmailAndPassword,
-  sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
   type Auth,
@@ -13,7 +12,6 @@ export async function signUpWithEmail(email: string, password: string) {
     email,
     password
   );
-  await sendEmailVerification(userCredential.user);
   return userCredential;
 }
 

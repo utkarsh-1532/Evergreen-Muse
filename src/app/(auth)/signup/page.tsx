@@ -51,10 +51,6 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       await signUpWithEmail(values.email, values.password);
-      toast({
-        title: "Account Created",
-        description: "We've sent a verification link to your email address.",
-      });
       router.push("/feed");
     } catch (error: any) {
       toast({
