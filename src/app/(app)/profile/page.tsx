@@ -82,9 +82,9 @@ export default function ProfilePage() {
         .then(() => {
             toast({
               title: 'Profile Created',
-              description: `Welcome, @${values.username}! You can now navigate to other pages.`,
+              description: `Welcome, @${values.username}!`,
             });
-            router.refresh();
+            router.push('/feed');
         })
         .catch((error: any) => {
             toast({

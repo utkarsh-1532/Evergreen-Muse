@@ -3,7 +3,7 @@
 import { useUser, useAuth } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { BookOpen, Home, LogOut, PenSquare, Target, UserCircle, Users, Book } from 'lucide-react';
+import { BookOpen, Home, LogOut, PenSquare, Target, UserCircle, Users } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import {
@@ -88,14 +88,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenuButton isActive={pathname.startsWith('/profile')}>
                   <UserCircle />
                   Profile
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/about">
-                <SidebarMenuButton isActive={pathname.startsWith('/about')}>
-                  <Book />
-                  Project Info
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
