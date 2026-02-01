@@ -1,15 +1,25 @@
 'use client';
 
 import { useUserProfile } from '@/hooks/use-user-profile';
+import { CreatePostDialog } from '@/components/post/CreatePostDialog';
+import { PostFeed } from '@/components/post/PostFeed';
 
 export default function SocialPage() {
   const { profile } = useUserProfile();
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Social Feed</h1>
-      <p>Welcome, {profile?.username}!</p>
-      <p>Posts will be displayed here.</p>
+    <div className="space-y-6">
+        <div className="flex justify-between items-center">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Social Feed</h1>
+                <p className="text-muted-foreground">
+                    Share your thoughts and see what others are up to.
+                </p>
+            </div>
+            {profile && <CreatePostDialog />}
+        </div>
+        
+        <PostFeed />
     </div>
   );
 }

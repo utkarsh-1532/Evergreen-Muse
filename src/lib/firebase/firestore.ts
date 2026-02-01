@@ -10,12 +10,13 @@ import {
   WriteBatch,
   Firestore,
   updateDoc,
+  collection,
 } from 'firebase/firestore';
 import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import type { UserProfile } from './types';
+import { addDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import type { Post, UserProfile } from './types';
 
 export function createProfile(
   db: Firestore,
@@ -64,4 +65,24 @@ export async function getUserProfile(db: Firestore, userId: string): Promise<Use
         return { id: userProfileSnap.id, ...userProfileSnap.data() } as UserProfile;
     }
     return null;
+}
+
+export function createPost(
+  db: Firestore,
+  user: User,
+  postData: Partial<Omit<Post, 'id' | 'authorId' | 'timestamp' | 'likeIds'>>
+): void {
+  if (!user.uid) {
+    throw new Error('User must be authenticated to create a post.');
+  }
+  const postsCollectionRef = collection(db, 'users', user.uid, 'posts');
+
+  const newPostData = {
+    ...postData,
+    authorId: user.uid,
+    timestamp: serverTimestamp(),
+    likeIds: [],
+  };
+
+  addDocumentNonBlocking(postsCollectionRef, newPostData);
 }
