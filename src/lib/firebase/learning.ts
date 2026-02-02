@@ -2,8 +2,7 @@
 import { Firestore, doc, collection, addDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { LearningSeed } from './types';
 import { calculateSrsUpdate, ReviewResult } from '@/lib/srs';
-import { updateDocumentNonBlocking } from '../non-blocking-updates';
-import { WithId } from '../firestore/use-collection';
+import { updateDocumentNonBlocking, WithId } from '@/firebase';
 
 export async function addSeed(db: Firestore, userId: string, data: { front: string; back: string; category: string }): Promise<void> {
   if (!userId || !data.front || !data.back) {
