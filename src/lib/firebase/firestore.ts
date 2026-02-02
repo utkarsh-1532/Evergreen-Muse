@@ -5,7 +5,6 @@ import {
   getDoc,
   runTransaction,
   serverTimestamp,
-  SetOptions,
   writeBatch,
   WriteBatch,
   Firestore,
@@ -16,6 +15,7 @@ import {
   arrayUnion,
   arrayRemove,
   addDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { updateProfile as updateAuthProfile, User } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -26,7 +26,7 @@ import { POSTS_COLLECTION } from '@/lib/constants';
 import { deleteObject, ref as storageRef } from 'firebase/storage';
 import type { Storage } from 'firebase/storage';
 import { WithId } from '@/firebase/firestore/use-collection';
-import { isToday, isYesterday } from 'date-fns';
+import { isToday, isYesterday, isSameDay, startOfDay } from 'date-fns';
 
 export function createProfile(
   db: Firestore,
@@ -148,41 +148,47 @@ export async function addHabit(db: Firestore, userId: string, title: string): Pr
   await addDoc(habitsCollectionRef, newHabit);
 }
 
-export function toggleHabit(db: Firestore, userId: string, habit: WithId<Habit>) {
+export function toggleHabit(db: Firestore, userId: string, habit: WithId<Habit>, selectedDate: Date) {
   const habitRef = doc(db, 'userProfiles', userId, 'habits', habit.id);
+  const normalizedSelectedDate = startOfDay(selectedDate);
   
-  const isCompletedToday = habit.lastCompleted ? isToday(habit.lastCompleted.toDate()) : false;
-  
+  const matchingTimestamp = habit.completedDates?.find(ts => isSameDay(ts.toDate(), normalizedSelectedDate));
+  const isCompletedOnSelectedDate = !!matchingTimestamp;
+
   const updateData: any = {};
 
-  if (isCompletedToday) {
-    // UNDO: Mark as not completed today
-    updateData.streak = Math.max(0, habit.streak - 1);
-    
-    // Find the previous completion date if it exists
-    const previousDates = habit.completedDates
-      .map(t => t.toDate())
-      .filter(d => !isToday(d)) // Filter out today's completion
-      .sort((a, b) => b.getTime() - a.getTime());
-      
-    updateData.lastCompleted = previousDates[0] || null;
-    updateData.completedDates = arrayRemove(habit.lastCompleted);
+  if (isCompletedOnSelectedDate && matchingTimestamp) {
+    // ---- UNDO COMPLETION ----
+    updateData.completedDates = arrayRemove(matchingTimestamp);
 
-  } else {
-    // COMPLETE: Mark as completed today
-    const wasCompletedYesterday = habit.lastCompleted ? isYesterday(habit.lastCompleted.toDate()) : false;
-    
-    if (wasCompletedYesterday) {
-      updateData.streak = habit.streak + 1;
-    } else {
-      updateData.streak = 1;
+    if (isToday(normalizedSelectedDate)) {
+      updateData.streak = Math.max(0, habit.streak - 1);
+      
+      const previousDates = habit.completedDates
+        .map(t => t.toDate())
+        .filter(d => !isSameDay(d, normalizedSelectedDate))
+        .sort((a, b) => b.getTime() - a.getTime());
+        
+      updateData.lastCompleted = previousDates.length > 0 ? Timestamp.fromDate(previousDates[0]) : null;
     }
-    
-    // Using serverTimestamp() inside arrayUnion is not allowed.
-    // We will use a client-side timestamp instead for consistency.
-    const completionTime = new Date();
-    updateData.lastCompleted = completionTime;
-    updateData.completedDates = arrayUnion(completionTime);
+  } else {
+    // ---- MARK AS COMPLETE ----
+    const newCompletionTime = Timestamp.fromDate(normalizedSelectedDate);
+    updateData.completedDates = arrayUnion(newCompletionTime);
+
+    if (isToday(normalizedSelectedDate)) {
+      const wasCompletedYesterday = habit.lastCompleted ? isYesterday(habit.lastCompleted.toDate()) : false;
+      
+      updateData.streak = wasCompletedYesterday ? habit.streak + 1 : 1;
+      updateData.lastCompleted = newCompletionTime;
+    } else {
+      // If completing a past date, check if it's the new "lastCompleted"
+      if (!habit.lastCompleted || normalizedSelectedDate > habit.lastCompleted.toDate()) {
+        updateData.lastCompleted = newCompletionTime;
+        // Note: Full streak recalculation for past dates is complex and not implemented here
+        // to keep the primary streak logic focused on current momentum.
+      }
+    }
   }
   
   updateDocumentNonBlocking(habitRef, updateData);

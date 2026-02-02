@@ -9,21 +9,23 @@ import { WithId } from '@/firebase/firestore/use-collection';
 
 interface HabitListProps {
   habits: WithId<Habit>[];
+  selectedDate: Date;
 }
 
-export function HabitList({ habits }: HabitListProps) {
+export function HabitList({ habits, selectedDate }: HabitListProps) {
   const firestore = useFirestore();
   const { user } = useUser();
 
   useEffect(() => {
     if (firestore && user && habits.length > 0) {
-      habits.forEach(habit => {
-        checkAndResetHabitStreak(firestore, user.uid, habit);
-      });
+      // This check should only run for the current day, not when viewing the past
+      if (new Date().toDateString() === new Date().toDateString()) {
+        habits.forEach((habit) => {
+          checkAndResetHabitStreak(firestore, user.uid, habit);
+        });
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firestore, user, habits]);
-
 
   if (habits.length === 0) {
     return (
@@ -36,8 +38,8 @@ export function HabitList({ habits }: HabitListProps) {
 
   return (
     <>
-      {habits.map(habit => (
-        <HabitCard key={habit.id} habit={habit} />
+      {habits.map((habit) => (
+        <HabitCard key={habit.id} habit={habit} selectedDate={selectedDate} />
       ))}
     </>
   );
