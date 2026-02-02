@@ -65,7 +65,7 @@ export function AddHabitDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button className="fixed bottom-24 right-6 z-30 h-14 w-14 rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/40 flex items-center justify-center hover:scale-110 transition-transform active:scale-90">
+        <button className="fixed bottom-24 right-6 z-30 h-14 w-14 rounded-full bg-primary text-white shadow-xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform active:scale-90">
           <Plus className="h-7 w-7" />
           <span className="sr-only">Add Habit</span>
         </button>

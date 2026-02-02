@@ -20,6 +20,13 @@ export default {
         'forest-charcoal': '#18181b',
         'forest-glow': '#34d399',
         'forest-dim': '#022c22',
+        forest: {
+          night: '#001021', // Deepest Background
+          deep:  '#034748', // Card Surface / Glass Tint
+          mid:   '#7EA16B', // Primary Brand / Success
+          mist:  '#C3D898', // Highlights / Active Text
+          berry: '#70161E', // Destructive / Errors
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

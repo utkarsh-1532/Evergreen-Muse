@@ -39,7 +39,7 @@ export function HabitCard({ habit, selectedDate }: HabitCardProps) {
         'glass-panel rounded-2xl p-4 flex items-center justify-between group transition-all',
         'border-gray-200 dark:border-zinc-800',
         isCompleted
-          ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-500/30'
+          ? 'bg-emerald-50/50 dark:bg-primary/10 border-primary/30'
           : 'bg-white dark:bg-zinc-900'
       )}
     >
@@ -64,10 +64,10 @@ export function HabitCard({ habit, selectedDate }: HabitCardProps) {
         disabled={isDateDisabled}
         aria-label={`Mark ${habit.title} as ${isCompleted ? 'incomplete' : 'complete'}`}
         className={cn(
-          'flex items-center justify-center h-12 w-12 rounded-full transition-all duration-300 ring-offset-background focus-visible:ring-2 focus-visible:ring-emerald-500 active:scale-90',
+          'flex items-center justify-center h-12 w-12 rounded-full transition-all duration-300 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring active:scale-90',
           'disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-zinc-800 dark:disabled:opacity-50',
           isCompleted
-            ? 'bg-emerald-500 text-white'
+            ? 'bg-primary text-primary-foreground'
             : 'bg-gray-100 text-gray-400 ring-1 ring-inset ring-gray-200 hover:bg-gray-200 dark:bg-zinc-800 dark:text-zinc-500 dark:ring-zinc-700 dark:hover:bg-zinc-700'
         )}
       >

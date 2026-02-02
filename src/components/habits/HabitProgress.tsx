@@ -37,7 +37,7 @@ export function HabitProgress({
             {getGreeting()}, {username || 'friend'}!
           </h1>
           <div className="text-right">
-            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+            <p className="text-sm font-medium text-primary">
               {completed}/{total} Habits Done
             </p>
             <p className="text-xs text-muted-foreground">On {format(selectedDate, 'MMM d')}</p>

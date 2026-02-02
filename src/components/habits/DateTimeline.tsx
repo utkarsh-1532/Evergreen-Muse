@@ -70,14 +70,14 @@ export function DateTimeline({ selectedDate, setSelectedDate, habits }: DateTime
             className={cn(
               'snap-center shrink-0 w-14 h-20 rounded-full flex flex-col items-center justify-center transition-all cursor-pointer relative',
               isSelected
-                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 scale-110'
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110'
                 : 'bg-transparent text-gray-400 dark:text-zinc-500 hover:bg-gray-100 dark:hover:bg-zinc-800'
             )}
           >
             <span className="text-xs uppercase">{format(day, 'E')}</span>
             <span className="text-lg font-bold">{format(day, 'd')}</span>
             {isCompleted && !isSelected && (
-                 <CheckCircle2 className="absolute bottom-1 h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400 fill-white dark:fill-zinc-800" />
+                 <CheckCircle2 className="absolute bottom-1 h-3.5 w-3.5 text-primary fill-white dark:fill-zinc-800" />
             )}
           </button>
         );
