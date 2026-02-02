@@ -16,16 +16,12 @@ export default {
         code: ['monospace'],
       },
       colors: {
-        'forest-black': '#09090b',
-        'forest-charcoal': '#18181b',
-        'forest-glow': '#34d399',
-        'forest-dim': '#022c22',
         forest: {
-          night: '#001021', // Deepest Background
-          deep:  '#034748', // Card Surface / Glass Tint
-          mid:   '#7EA16B', // Primary Brand / Success
-          mist:  '#C3D898', // Highlights / Active Text
-          berry: '#70161E', // Destructive / Errors
+          night: '#09090b', // Zinc 950 (Original Deep Charcoal)
+          deep:  '#18181b', // Zinc 900 (Original Card Surface)
+          mid:   '#10b981', // Emerald 500 (Original Primary Green)
+          mist:  '#34d399', // Emerald 400 (Original Neon Accent)
+          berry: '#fb7185', // Rose 400 (Original Error Color)
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

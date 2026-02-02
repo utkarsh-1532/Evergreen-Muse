@@ -10,9 +10,8 @@
 
   /* Dark Mode Glass (Smoked) */
   .dark .glass-panel {
-    /* Tinted with Deep Teal (#034748) at 40% opacity */
-    background-color: rgba(3, 71, 72, 0.4);
-    @apply backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40;
+    /* Revert to Neutral Black at 40% opacity */
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50;
   }
 }
 
