@@ -43,3 +43,14 @@ export type Habit = {
     completedDates: Timestamp[];
     createdAt: Timestamp;
 };
+
+export type LearningSeed = {
+    id: string;
+    userId: string;
+    front: string;
+    back: string;
+    box: number;
+    nextReview: Timestamp;
+    category: string;
+    createdAt: Timestamp;
+};

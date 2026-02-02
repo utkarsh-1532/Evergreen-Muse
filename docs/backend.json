@@ -203,6 +203,52 @@
         "title",
         "createdAt"
       ]
+    },
+    "LearningSeed": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LearningSeed",
+      "type": "object",
+      "description": "Represents a single piece of knowledge in the spaced repetition system.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Reference to the user who owns this seed."
+        },
+        "front": {
+          "type": "string",
+          "description": "The front of the card (e.g., a question or concept)."
+        },
+        "back": {
+          "type": "string",
+          "description": "The back of the card (e.g., an answer or definition)."
+        },
+        "box": {
+          "type": "number",
+          "description": "The current Spaced Repetition System (SRS) level, from 0 to 5."
+        },
+        "nextReview": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp for when this seed is next due for review."
+        },
+        "category": {
+          "type": "string",
+          "description": "A user-defined category for organizing seeds."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp indicating when the seed was created."
+        }
+      },
+      "required": [
+        "userId",
+        "front",
+        "back",
+        "box",
+        "nextReview",
+        "createdAt"
+      ]
     }
   },
   "auth": {
@@ -284,8 +330,28 @@
             }
           ]
         }
+      },
+      {
+        "path": "/userProfiles/{userProfileId}/seeds/{seedId}",
+        "definition": {
+          "entityName": "LearningSeed",
+          "schema": {
+            "$ref": "#/backend/entities/LearningSeed"
+          },
+          "description": "Stores individual knowledge seeds for a user's spaced repetition learning system.",
+          "params": [
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier for the user profile."
+            },
+            {
+              "name": "seedId",
+              "description": "The unique identifier for the learning seed."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure has been simplified to use a top-level `global_posts` collection for the social feed. This avoids the need for complex and potentially error-prone collection group queries, resolving persistent permission issues.\n\n*   **User Profiles:** Stored in a dedicated `userProfiles` collection to ensure username uniqueness and separation of concerns.\n*   **Global Posts:** All posts from all users are stored in a single `global_posts` collection. This makes querying for the main social feed simple and efficient, requiring only a basic collection query. The `authorId` field within each post document maintains clear ownership.\n*   **Likes:** Likes are now stored as subcollections under each post in the `global_posts` collection (`/global_posts/{postId}/likes/{likeId}`). This structure allows for efficient querying of likes for a specific post.\n\nThis simplified, denormalized structure prioritizes efficient read operations for the main feed, which is the most common use case, and resolves previous security rule complexities."
+    "reasoning": "The Firestore structure has been simplified to use a top-level `global_posts` collection for the social feed. This avoids the need for complex and potentially error-prone collection group queries. User-specific data like Habits and Learning Seeds are stored in subcollections under their `userProfiles` document to ensure data is logically grouped and secured by a simple ownership rule."
   }
 }

@@ -1,32 +1,58 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, ArrowLeft } from "lucide-react";
-import Link from 'next/link';
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, WithId } from '@/firebase/firestore/use-collection';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { LearningSeed } from '@/lib/firebase/types';
+import { AddSeedDialog } from '@/components/learning/AddSeedDialog';
+import { ReviewDueCard } from '@/components/learning/ReviewDueCard';
+import { SeedList } from '@/components/learning/SeedList';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LearningPage() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const seedsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(
+      collection(firestore, 'userProfiles', user.uid, 'seeds'),
+      orderBy('createdAt', 'desc')
+    );
+  }, [firestore, user]);
+
+  const { data: seeds, isLoading } = useCollection<LearningSeed>(seedsQuery);
+
+  const dueSeeds = useMemo(() => {
+    if (!seeds) return [];
+    const now = new Date();
+    return seeds.filter((seed) => seed.nextReview.toDate() <= now);
+  }, [seeds]);
+
+  if (isLoading && !seeds) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-24 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center justify-center h-full">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader>
-          <div className="flex flex-col items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                  <BookOpen className="h-8 w-8 text-primary" />
-              </div>
-              <CardTitle className="text-2xl">Coming Soon!</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            The Learning Engine is currently under construction. Check back later to track your learning projects and skill development.
-          </p>
-          <Button asChild>
-            <Link href="/feed">
-              <ArrowLeft className="mr-2" />
-              Back to Dashboard
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <ReviewDueCard dueSeeds={dueSeeds} />
+
+      <div>
+        <h2 className="text-2xl font-bold font-headline mb-4">Your Garden</h2>
+        <SeedList seeds={seeds || []} />
+      </div>
+
+      <AddSeedDialog />
     </div>
   );
 }

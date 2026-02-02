@@ -10,9 +10,10 @@
  * ## Data Structure
  * 1.  `/userProfiles/{userProfileId}`: Stores public user profile data.
  * 2.  `/userProfiles/{userProfileId}/habits/{habitId}`: Stores private habits for a user.
- * 3.  `/usernames/{username}`: A technical collection to enforce unique usernames.
- * 4.  `/global_posts/{postId}`: A single, top-level collection for all public posts.
- * 5.  `/global_posts/{postId}/likes/{likeId}`: Likes are a subcollection of posts.
+ * 3.  `/userProfiles/{userProfileId}/seeds/{seedId}`: Stores private learning seeds for a user.
+ * 4.  `/usernames/{username}`: A technical collection to enforce unique usernames.
+ * 5.  `/global_posts/{postId}`: A single, top-level collection for all public posts.
+ * 6.  `/global_posts/{postId}/likes/{likeId}`: Likes are a subcollection of posts.
  *
  * ## Key Security Decisions
  * -   **Default Deny**: All paths are closed by default.
@@ -76,6 +77,13 @@ service cloud.firestore {
        */
       match /habits/{habitId} {
         allow read, write, delete: if isOwner(userProfileId);
+      }
+      
+      /**
+       * @description Manages a user's private learning seeds for spaced repetition.
+       */
+      match /seeds/{seedId} {
+          allow read, write, delete: if isOwner(userProfileId);
       }
     }
 
