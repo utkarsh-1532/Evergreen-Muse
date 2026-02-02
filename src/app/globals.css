@@ -71,10 +71,7 @@
   }
   body {
     @apply bg-background text-foreground transition-colors duration-300;
-  }
-  .dark body {
     position: relative;
-    overflow-x: hidden;
   }
   .dark body::before,
   .dark body::after {
@@ -119,7 +116,7 @@
 
   /* Dark Mode Glass (Bokeh) */
   .dark .glass-panel {
-    background-color: rgba(30, 41, 59, 0.7); /* Slate-800 at 70% opacity */
+    background-color: rgba(30, 41, 59, 0.8);
     @apply backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50;
   }
 }

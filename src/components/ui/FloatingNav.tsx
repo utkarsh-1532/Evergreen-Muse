@@ -53,7 +53,7 @@ export function FloatingNav() {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 200, damping: 30, delay: 0.5 }}
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100]"
     >
       <div className="glass-panel flex items-center justify-around w-[90vw] max-w-md rounded-full p-2 shadow-2xl">
         {navItems.map((item) => (

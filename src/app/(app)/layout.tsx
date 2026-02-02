@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useUserProfile } from '@/hooks/use-user-profile';
-import { FloatingNav } from '@/components/ui/FloatingNav';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
@@ -35,7 +34,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 p-4 md:p-6 mb-24">
         {children}
       </main>
-      <FloatingNav />
     </>
   );
 }

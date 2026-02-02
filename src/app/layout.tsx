@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Inter, Playfair_Display } from 'next/font/google';
+import { FloatingNav } from "@/components/ui/FloatingNav";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -45,6 +46,7 @@ export default function RootLayout({
           <FirebaseClientProvider>
             {children}
             <Toaster />
+            <FloatingNav />
           </FirebaseClientProvider>
         </ThemeProvider>
       </body>
