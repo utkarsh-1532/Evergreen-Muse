@@ -70,41 +70,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
-    position: relative;
-  }
-  .dark body::before,
-  .dark body::after {
-    content: "";
-    position: fixed;
-    z-index: -1;
-    filter: blur(100px);
-  }
-  .dark body::before {
-    width: 600px;
-    height: 600px;
-    border-radius: 9999px;
-    background-color: hsl(var(--muted) / 0.1);
-    top: -150px;
-    left: -150px;
-    animation: pulse-aurora 25s infinite ease-in-out alternate;
-  }
-  .dark body::after {
-    width: 800px;
-    height: 800px;
-    border-radius: 9999px;
-    background-color: hsl(var(--secondary) / 0.1);
-    bottom: -200px;
-    right: -200px;
-    animation: pulse-aurora 30s infinite ease-in-out alternate-reverse;
-  }
-  @keyframes pulse-aurora {
-    from {
-      transform: scale(1) rotate(0deg);
-    }
-    to {
-      transform: scale(1.1) rotate(20deg);
-    }
+    @apply bg-background text-foreground transition-colors duration-300 min-h-screen antialiased;
+    background-image: radial-gradient(at 0% 0%, hsl(var(--primary) / 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, hsl(var(--secondary) / 0.1) 0px, transparent 50%);
   }
 }
 

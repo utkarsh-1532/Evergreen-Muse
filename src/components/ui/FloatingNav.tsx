@@ -48,6 +48,10 @@ export function FloatingNav() {
     router.push('/login');
   };
 
+  if (pathname === '/login' || pathname === '/signup') {
+    return null;
+  }
+
   return (
     <motion.div
       initial={{ y: 100, opacity: 0 }}
