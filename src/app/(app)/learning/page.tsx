@@ -27,7 +27,13 @@ export default function LearningPage() {
   const dueSeeds = useMemo(() => {
     if (!seeds) return [];
     const now = new Date();
-    return seeds.filter((seed) => seed.nextReview && seed.nextReview.toDate() <= now);
+    return seeds.filter((seed) => {
+      // 1. Safety Check: If nextReview is missing, ignore this seed (or treat as not due)
+      if (!seed.nextReview) return false;
+
+      // 2. Now it is safe to convert
+      return seed.nextReview.toDate() <= now;
+    });
   }, [seeds]);
 
   if (isLoading && !seeds) {
