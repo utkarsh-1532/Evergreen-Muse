@@ -72,6 +72,43 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300;
   }
+  .dark body {
+    position: relative;
+    overflow-x: hidden;
+  }
+  .dark body::before,
+  .dark body::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    filter: blur(100px);
+  }
+  .dark body::before {
+    width: 600px;
+    height: 600px;
+    border-radius: 9999px;
+    background-color: hsl(var(--muted) / 0.1);
+    top: -150px;
+    left: -150px;
+    animation: pulse-aurora 25s infinite ease-in-out alternate;
+  }
+  .dark body::after {
+    width: 800px;
+    height: 800px;
+    border-radius: 9999px;
+    background-color: hsl(var(--secondary) / 0.1);
+    bottom: -200px;
+    right: -200px;
+    animation: pulse-aurora 30s infinite ease-in-out alternate-reverse;
+  }
+  @keyframes pulse-aurora {
+    from {
+      transform: scale(1) rotate(0deg);
+    }
+    to {
+      transform: scale(1.1) rotate(20deg);
+    }
+  }
 }
 
 @layer components {
@@ -80,9 +117,9 @@
     @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-sm;
   }
 
-  /* Dark Mode Glass (Smoked) */
+  /* Dark Mode Glass (Bokeh) */
   .dark .glass-panel {
-    background-color: rgba(30, 41, 59, 0.8);
-    @apply backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40;
+    background-color: rgba(30, 41, 59, 0.7); /* Slate-800 at 70% opacity */
+    @apply backdrop-blur-2xl border border-white/10 shadow-2xl shadow-black/50;
   }
 }

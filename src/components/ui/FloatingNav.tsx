@@ -53,9 +53,9 @@ export function FloatingNav() {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 200, damping: 30, delay: 0.5 }}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
     >
-      <div className="glass-panel flex items-center gap-2 rounded-full p-2 shadow-2xl">
+      <div className="glass-panel flex items-center justify-around w-[90vw] max-w-md rounded-full p-2 shadow-2xl">
         {navItems.map((item) => (
           <Link key={item.href} href={item.href} passHref>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
@@ -74,9 +74,9 @@ export function FloatingNav() {
           </Link>
         ))}
 
-        <div className="h-8 w-px bg-border mx-2" />
+        <div className="h-8 w-px bg-border" />
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
             <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary transition-colors">
               {user?.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
               <AvatarFallback>{getInitials(profile?.username || user?.email)}</AvatarFallback>
