@@ -32,7 +32,10 @@ export function SeedCard({ seed }: SeedCardProps) {
           <div className="flex justify-between items-center text-xs text-muted-foreground">
              {seed.category && <Badge variant="secondary">{seed.category}</Badge>}
              <span>
-                Review in {formatDistanceToNow(seed.nextReview.toDate(), { addSuffix: true })}
+                {seed.nextReview
+                  ? `Review ${formatDistanceToNow(seed.nextReview.toDate(), { addSuffix: true })}`
+                  : 'No review scheduled'
+                }
             </span>
           </div>
       </CardContent>
