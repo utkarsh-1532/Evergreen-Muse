@@ -26,7 +26,7 @@ import { POSTS_COLLECTION } from '@/lib/constants';
 import { deleteObject, ref as storageRef } from 'firebase/storage';
 import type { Storage } from 'firebase/storage';
 import { WithId } from '@/firebase/firestore/use-collection';
-import { isToday, isYesterday, isSameDay, startOfDay } from 'date-fns';
+import { isToday, isYesterday, isSameDay, startOfDay, differenceInCalendarDays } from 'date-fns';
 
 export function createProfile(
   db: Firestore,
@@ -148,48 +148,52 @@ export async function addHabit(db: Firestore, userId: string, title: string): Pr
   await addDoc(habitsCollectionRef, newHabit);
 }
 
+function recalculateStreakFromDates(completedDates: Timestamp[]): { streak: number; lastCompleted: Timestamp | null } {
+    if (!completedDates || completedDates.length === 0) {
+        return { streak: 0, lastCompleted: null };
+    }
+
+    const sortedDates = completedDates.map(ts => ts.toDate()).sort((a, b) => b.getTime() - a.getTime());
+    const lastCompletedDate = sortedDates[0];
+    
+    let streak = 1;
+
+    for (let i = 0; i < sortedDates.length - 1; i++) {
+        const currentDay = startOfDay(sortedDates[i]);
+        const nextDayInList = startOfDay(sortedDates[i + 1]);
+        
+        const diff = differenceInCalendarDays(currentDay, nextDayInList);
+
+        if (diff === 1) {
+            streak++;
+        } else if (diff > 1) {
+            break; // Gap detected, streak ends
+        }
+    }
+
+    return { streak, lastCompleted: Timestamp.fromDate(lastCompletedDate) };
+}
+
 export function toggleHabit(db: Firestore, userId: string, habit: WithId<Habit>, selectedDate: Date) {
   const habitRef = doc(db, 'userProfiles', userId, 'habits', habit.id);
   const normalizedSelectedDate = startOfDay(selectedDate);
   
-  const matchingTimestamp = habit.completedDates?.find(ts => isSameDay(ts.toDate(), normalizedSelectedDate));
-  const isCompletedOnSelectedDate = !!matchingTimestamp;
+  const existingCompletion = habit.completedDates?.find(ts => isSameDay(ts.toDate(), normalizedSelectedDate));
+  let newCompletedDates: Timestamp[];
 
-  const updateData: any = {};
-
-  if (isCompletedOnSelectedDate && matchingTimestamp) {
-    // ---- UNDO COMPLETION ----
-    updateData.completedDates = arrayRemove(matchingTimestamp);
-
-    if (isToday(normalizedSelectedDate)) {
-      updateData.streak = Math.max(0, habit.streak - 1);
-      
-      const previousDates = habit.completedDates
-        .map(t => t.toDate())
-        .filter(d => !isSameDay(d, normalizedSelectedDate))
-        .sort((a, b) => b.getTime() - a.getTime());
-        
-      updateData.lastCompleted = previousDates.length > 0 ? Timestamp.fromDate(previousDates[0]) : null;
-    }
+  if (existingCompletion) {
+    newCompletedDates = habit.completedDates.filter(ts => !isSameDay(ts.toDate(), normalizedSelectedDate));
   } else {
-    // ---- MARK AS COMPLETE ----
-    const newCompletionTime = Timestamp.fromDate(normalizedSelectedDate);
-    updateData.completedDates = arrayUnion(newCompletionTime);
-
-    if (isToday(normalizedSelectedDate)) {
-      const wasCompletedYesterday = habit.lastCompleted ? isYesterday(habit.lastCompleted.toDate()) : false;
-      
-      updateData.streak = wasCompletedYesterday ? habit.streak + 1 : 1;
-      updateData.lastCompleted = newCompletionTime;
-    } else {
-      // If completing a past date, check if it's the new "lastCompleted"
-      if (!habit.lastCompleted || normalizedSelectedDate > habit.lastCompleted.toDate()) {
-        updateData.lastCompleted = newCompletionTime;
-        // Note: Full streak recalculation for past dates is complex and not implemented here
-        // to keep the primary streak logic focused on current momentum.
-      }
-    }
+    newCompletedDates = [...(habit.completedDates || []), Timestamp.fromDate(normalizedSelectedDate)];
   }
+
+  const { streak, lastCompleted } = recalculateStreakFromDates(newCompletedDates);
+
+  const updateData = {
+    completedDates: newCompletedDates,
+    streak,
+    lastCompleted,
+  };
   
   updateDocumentNonBlocking(habitRef, updateData);
 }
