@@ -1,3 +1,4 @@
+'use client';
 
 export const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {

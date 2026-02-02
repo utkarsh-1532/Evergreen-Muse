@@ -7,7 +7,7 @@ import * as z from "zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -52,7 +52,14 @@ export default function SignUpPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await sendEmailVerification(userCredential.user);
+      
+      toast({
+          title: 'Account Created!',
+          description: 'A verification link has been sent to your email.',
+      });
+
       router.push("/profile");
     } catch (error: any) {
       toast({

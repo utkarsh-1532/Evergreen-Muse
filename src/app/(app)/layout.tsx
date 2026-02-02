@@ -23,6 +23,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { VerificationGate } from '@/components/auth/VerificationGate';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
@@ -59,99 +60,101 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold font-headline">Evergreen</h1>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <Link href="/feed">
-                <SidebarMenuButton isActive={pathname.startsWith('/feed')}>
-                  <Home />
-                  Dashboard
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <Link href="/social">
-                <SidebarMenuButton isActive={pathname.startsWith('/social')}>
-                  <Users />
-                  Social
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <Link href="/profile">
-                <SidebarMenuButton isActive={pathname.startsWith('/profile')}>
-                  <UserCircle />
-                  Profile
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-               <Link href="/journal">
-                <SidebarMenuButton isActive={pathname.startsWith('/journal')}>
-                  <PenSquare />
-                  Journal
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-               <Link href="/habits">
-                <SidebarMenuButton isActive={pathname.startsWith('/habits')}>
-                  <Target />
-                  Habits
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-               <Link href="/learning">
-                <SidebarMenuButton isActive={pathname.startsWith('/learning')}>
-                  <BookOpen />
-                  Learning
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-center justify-between">
+    <VerificationGate>
+      <SidebarProvider>
+        <Sidebar>
+          <SidebarHeader>
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
-                {user.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
-                <AvatarFallback>{getInitials(profile?.username || user.email)}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col text-sm">
-                  <span className="font-medium text-foreground">{profile?.username || user.email}</span>
+              <h1 className="text-xl font-semibold font-headline">Evergreen</h1>
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <Link href="/feed">
+                  <SidebarMenuButton isActive={pathname.startsWith('/feed')}>
+                    <Home />
+                    Dashboard
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/social">
+                  <SidebarMenuButton isActive={pathname.startsWith('/social')}>
+                    <Users />
+                    Social
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/profile">
+                  <SidebarMenuButton isActive={pathname.startsWith('/profile')}>
+                    <UserCircle />
+                    Profile
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/journal">
+                  <SidebarMenuButton isActive={pathname.startsWith('/journal')}>
+                    <PenSquare />
+                    Journal
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/habits">
+                  <SidebarMenuButton isActive={pathname.startsWith('/habits')}>
+                    <Target />
+                    Habits
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/learning">
+                  <SidebarMenuButton isActive={pathname.startsWith('/learning')}>
+                    <BookOpen />
+                    Learning
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  {user.photoURL && <AvatarImage src={user.photoURL} alt={user.email || 'User'} />}
+                  <AvatarFallback>{getInitials(profile?.username || user.email)}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col text-sm">
+                    <span className="font-medium text-foreground">{profile?.username || user.email}</span>
+                </div>
               </div>
+              <ThemeToggle />
             </div>
-            <ThemeToggle />
-          </div>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleSignOut}>
-                <LogOut />
-                Sign Out
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex h-12 items-center justify-between border-b px-4 lg:justify-end">
-            <SidebarTrigger className="lg:hidden" />
-            <div className="flex items-center gap-2">
-                {/* Dark mode toggle can go here */}
-            </div>
-        </header>
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleSignOut}>
+                  <LogOut />
+                  Sign Out
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+        <SidebarInset>
+          <header className="flex h-12 items-center justify-between border-b px-4 lg:justify-end">
+              <SidebarTrigger className="lg:hidden" />
+              <div className="flex items-center gap-2">
+                  {/* Dark mode toggle can go here */}
+              </div>
+          </header>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </VerificationGate>
   );
 }
