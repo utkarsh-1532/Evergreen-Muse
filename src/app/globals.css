@@ -10,8 +10,9 @@
 
   /* Dark Mode Glass (Smoked) */
   .dark .glass-panel {
-    /* Revert to Neutral Black at 40% opacity */
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50;
+    /* Tinted with Earthy Brown (#6C534E) at 30% opacity */
+    background-color: rgba(108, 83, 78, 0.3);
+    @apply backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40;
   }
 }
 
