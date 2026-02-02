@@ -1,32 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { AddHabitDialog } from '@/components/habits/AddHabitDialog';
-import { HabitList } from '@/components/habits/HabitList';
-import { HabitProgress } from '@/components/habits/HabitProgress';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { useCollection, WithId } from '@/firebase/firestore/use-collection';
-import { Habit } from '@/lib/firebase/types';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { AddHabitDialog } from '@/features/habits/components/AddHabitDialog';
+import { HabitList } from '@/features/habits/components/HabitList';
+import { HabitProgress } from '@/features/habits/components/HabitProgress';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { Skeleton } from '@/components/ui/skeleton';
 import { isSameDay } from 'date-fns';
+import { useHabits } from '@/hooks/useHabits';
 
 export default function HabitsPage() {
-  const { user } = useUser();
-  const firestore = useFirestore();
   const { profile } = useUserProfile();
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const habitsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(
-      collection(firestore, 'userProfiles', user.uid, 'habits'),
-      orderBy('createdAt', 'desc')
-    );
-  }, [firestore, user]);
-
-  const { data: habits, isLoading } = useCollection<Habit>(habitsQuery);
+  const { habits, addHabit, toggleHabit, isLoading } = useHabits();
 
   const habitsCompletedOnSelectedDate =
     habits?.filter((habit) =>
@@ -73,10 +60,10 @@ export default function HabitsPage() {
       />
 
       <div className="max-w-md mx-auto p-4 space-y-3 min-h-screen pb-32">
-        <HabitList habits={sortedHabits} selectedDate={selectedDate} />
+        <HabitList habits={sortedHabits} selectedDate={selectedDate} onToggleHabit={toggleHabit} />
       </div>
 
-      <AddHabitDialog />
+      <AddHabitDialog onAddHabit={addHabit} />
     </div>
   );
 }

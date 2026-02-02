@@ -1,37 +1,20 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { useCollection, WithId } from '@/firebase/firestore/use-collection';
-import { collection, query, orderBy } from 'firebase/firestore';
-import { LearningSeed } from '@/lib/firebase/types';
-import { AddSeedDialog } from '@/components/learning/AddSeedDialog';
-import { ReviewDueCard } from '@/components/learning/ReviewDueCard';
-import { SeedList } from '@/components/learning/SeedList';
+import { useMemo } from 'react';
+import { useLearning } from '@/hooks/useLearning';
+import { AddSeedDialog } from '@/features/learning/components/AddSeedDialog';
+import { ReviewDueCard } from '@/features/learning/components/ReviewDueCard';
+import { SeedList } from '@/features/learning/components/SeedList';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LearningPage() {
-  const { user } = useUser();
-  const firestore = useFirestore();
-
-  const seedsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(
-      collection(firestore, 'userProfiles', user.uid, 'seeds'),
-      orderBy('createdAt', 'desc')
-    );
-  }, [firestore, user]);
-
-  const { data: seeds, isLoading } = useCollection<LearningSeed>(seedsQuery);
+  const { seeds, addSeed, updateSeedReview, isLoading } = useLearning();
 
   const dueSeeds = useMemo(() => {
     if (!seeds) return [];
     const now = new Date();
     return seeds.filter((seed) => {
-      // 1. Safety Check: If nextReview is missing, ignore this seed (or treat as not due)
       if (!seed.nextReview) return false;
-
-      // 2. Now it is safe to convert
       return seed.nextReview.toDate() <= now;
     });
   }, [seeds]);
@@ -51,14 +34,14 @@ export default function LearningPage() {
 
   return (
     <div className="space-y-6">
-      <ReviewDueCard dueSeeds={dueSeeds} />
+      <ReviewDueCard dueSeeds={dueSeeds} onUpdateSeedReview={updateSeedReview} />
 
       <div>
         <h2 className="text-2xl font-bold font-headline mb-4">Your Garden</h2>
         <SeedList seeds={seeds || []} />
       </div>
 
-      <AddSeedDialog />
+      <AddSeedDialog onAddSeed={addSeed} />
     </div>
   );
 }

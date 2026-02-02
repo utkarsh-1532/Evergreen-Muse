@@ -1,0 +1,49 @@
+'use client';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { useUser } from "@/firebase";
+import { Post } from "@/types";
+import { formatDistanceToNow } from 'date-fns';
+import { Trash2 } from "lucide-react";
+import { DeletePostDialog } from "./DeletePostDialog";
+
+interface PostHeaderProps {
+    post: Post;
+    onDeletePost: (postId: string, imageUrl?: string) => Promise<void>;
+}
+
+export const PostHeader = ({ post, onDeletePost }: PostHeaderProps) => {
+    const { user } = useUser();
+    const isOwner = user?.uid === post.authorId;
+
+    const getInitials = (name?: string | null) => {
+        if (!name) return 'U';
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    };
+
+    return (
+        <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 border">
+                    <AvatarImage src={post.authorProfilePicUrl} alt={post.authorUsername} />
+                    <AvatarFallback>{getInitials(post.authorUsername)}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="text-base font-bold">{post.authorUsername || 'Anonymous'}</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
+                    {post.timestamp ? formatDistanceToNow( (post.timestamp as any).toDate(), { addSuffix: true }) : 'just now'}
+                    </p>
+                </div>
+            </div>
+
+            {isOwner && (
+                <DeletePostDialog post={post} onDeletePost={onDeletePost}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete Post</span>
+                    </Button>
+                </DeletePostDialog>
+            )}
+        </div>
+    )
+}

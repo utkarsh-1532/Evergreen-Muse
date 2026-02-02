@@ -2,7 +2,7 @@
 
 import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { useDoc } from '@/firebase/firestore/use-doc';
-import { UserProfile } from '@/lib/firebase/types';
+import { UserProfile } from '@/types';
 import { doc } from 'firebase/firestore';
 
 export function useUserProfile() {
