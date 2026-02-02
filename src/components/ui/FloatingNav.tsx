@@ -57,9 +57,9 @@ export function FloatingNav() {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 200, damping: 30, delay: 0.5 }}
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100]"
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md transform-gpu will-change-transform"
     >
-      <div className="glass-panel flex items-center justify-around w-[90vw] max-w-md rounded-full p-2 shadow-2xl">
+      <div className="glass-panel flex items-center justify-around w-full rounded-full p-2 shadow-2xl">
         {navItems.map((item) => (
           <Link key={item.href} href={item.href} passHref>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>

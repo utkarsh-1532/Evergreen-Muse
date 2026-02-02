@@ -30,10 +30,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
-      <main className="flex-1 p-4 md:p-6 mb-24">
-        {children}
-      </main>
-    </>
+    <div className="flex-1 p-4 md:p-6 mb-24">
+      {children}
+    </div>
   );
 }

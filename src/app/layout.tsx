@@ -34,7 +34,8 @@ export default function RootLayout({
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           inter.variable,
-          playfair.variable
+          playfair.variable,
+          "selection:bg-primary selection:text-primary-foreground"
         )}
       >
         <ThemeProvider
@@ -44,9 +45,15 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            {children}
-            <Toaster />
+            {/* 1. Static Layer: Navigation (Fixed, GPU accelerated) */}
             <FloatingNav />
+            
+            {/* 2. Scrollable Layer: Content */}
+            <main className='relative z-0 min-h-screen flex flex-col'>
+              {children}
+            </main>
+            
+            <Toaster />
           </FirebaseClientProvider>
         </ThemeProvider>
       </body>
