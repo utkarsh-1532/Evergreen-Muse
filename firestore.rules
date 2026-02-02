@@ -54,7 +54,9 @@ service cloud.firestore {
      * The client performs a transaction to ensure uniqueness before writing here.
      */
     match /usernames/{username} {
-      allow get, list: if false;
+      // Allow any signed-in user to check if a username exists.
+      allow get: if isSignedIn();
+      allow list: if false;
       // Allow a user to create a username lock for their own UID.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow update: if false;
