@@ -60,7 +60,7 @@ export default function SignUpPage() {
           description: 'A verification link has been sent to your email.',
       });
 
-      router.push("/profile");
+      router.push("/feed");
     } catch (error: any) {
       toast({
         variant: "destructive",

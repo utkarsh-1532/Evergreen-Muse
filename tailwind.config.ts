@@ -17,11 +17,11 @@ export default {
       },
       colors: {
         forest: {
-          night: '#09090b', // Zinc 950 (Original Deep Charcoal)
-          deep:  '#18181b', // Zinc 900 (Original Card Surface)
-          mid:   '#10b981', // Emerald 500 (Original Primary Green)
-          mist:  '#34d399', // Emerald 400 (Original Neon Accent)
-          berry: '#fb7185', // Rose 400 (Original Error Color)
+          night: '#09090b', // Zinc 950 (Background)
+          deep:  '#18181b', // Zinc 900 (Cards)
+          mid:   '#10b981', // Emerald 500 (Primary)
+          mist:  '#34d399', // Emerald 400 (Text Accent)
+          berry: '#fb7185', // Rose 400 (Error)
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
