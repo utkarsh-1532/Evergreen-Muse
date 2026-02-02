@@ -27,7 +27,7 @@ export default function LearningPage() {
   const dueSeeds = useMemo(() => {
     if (!seeds) return [];
     const now = new Date();
-    return seeds.filter((seed) => seed.nextReview.toDate() <= now);
+    return seeds.filter((seed) => seed.nextReview && seed.nextReview.toDate() <= now);
   }, [seeds]);
 
   if (isLoading && !seeds) {
