@@ -17,11 +17,11 @@ export default {
       },
       colors: {
         forest: {
-            night: '#050A14', // Abyss (Background) - Deepest Navy
-            deep:  '#0A192F', // Trench (Surface) - Dark Blue
-            mid:   '#64FFDA', // Cyan (Primary) - Neon Teal
-            mist:  '#E6F1FF', // Ice (Text) - Ultra-Bright White-Blue
-            berry: '#FF6B6B', // Coral (Accent/Alert) - Soft Red
+            night: '#0F172A', // Slate 900 (Background) - Professional Dark Blue-Grey
+            deep:  '#1E293B', // Slate 800 (Surface) - Lighter Slate
+            mid:   '#F8FAFC', // Slate 50 (Primary/Text) - Pure White Paper
+            mist:  '#94A3B8', // Slate 400 (Secondary) - Muted Grey for Icons
+            berry: '#EF4444', // Red 500 (Destructive) - Standard Error Red
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
