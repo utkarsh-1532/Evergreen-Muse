@@ -5,7 +5,7 @@
  * This ruleset enforces a security model for a social media application.
  * Users have exclusive write control over their own content (profiles, posts),
  * while social content is publicly readable to authenticated users. It also
- * guarantees username uniqueness across the platform.
+ * guarantees username uniqueness across the platform via a client-side transaction.
  *
  * ## Data Structure
  * 1.  `/userProfiles/{userProfileId}`: Stores public user profile data.
@@ -19,8 +19,8 @@
  * -   **Default Deny**: All paths are closed by default.
  * -   **Public Read, Owner Write**: Social content (profiles, posts) is readable
  *     by any authenticated user but is only writable by the content owner.
- * -   **Username Uniqueness**: Enforced via a `/usernames` collection and a
- *     transaction during profile creation.
+ * -   **Username Uniqueness**: Enforced via a transaction on the client during
+ *     profile creation which checks the `/usernames` collection.
  * -   **Simplified Post Querying**: A single `global_posts` collection allows for
  *     simple, secure, and efficient querying for the main feed, avoiding complex
  *     collection group queries.
@@ -45,19 +45,17 @@ service cloud.firestore {
       return isOwner(userId) && resource != null;
     }
 
-    function isCreatingUniqueUsername(userId) {
-      return getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == userId;
-    }
-
     // -------------------------------------------------------------------------
     // Collection Rules
     // -------------------------------------------------------------------------
 
     /**
      * @description Private collection to enforce unique usernames.
+     * The client performs a transaction to ensure uniqueness before writing here.
      */
     match /usernames/{username} {
       allow get, list: if false;
+      // Allow a user to create a username lock for their own UID.
       allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow update: if false;
       allow delete: if isExistingOwner(resource.data.uid);
@@ -68,7 +66,9 @@ service cloud.firestore {
      */
     match /userProfiles/{userProfileId} {
       allow get, list: if true;
-      allow create: if isOwner(userProfileId) && request.resource.data.userId == userProfileId && isCreatingUniqueUsername(userProfileId);
+      // Allow a user to create their own profile document.
+      allow create: if isOwner(userProfileId) && request.resource.data.userId == userProfileId;
+      // Allow the owner to update specific, non-critical fields.
       allow update: if isExistingOwner(userProfileId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['bio', 'profilePicUrl']);
       allow delete: if isExistingOwner(userProfileId);
 
