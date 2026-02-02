@@ -1,3 +1,5 @@
+'use client';
+
 export const compressImage = (
   file: File,
   options: { maxWidth: number; quality: number }
