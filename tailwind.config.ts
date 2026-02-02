@@ -17,11 +17,11 @@ export default {
       },
       colors: {
         forest: {
-            night: '#121212', // Ash (Background) - Warm Black
-            deep:  '#1E1E1E', // Charcoal (Surface) - Dark Warm Grey
-            mid:   '#FF6B35', // Ember (Primary) - Vibrant Orange
-            mist:  '#EFEFEF', // Smoke (Text) - High Contrast Off-White
-            berry: '#C44536', // Clay (Accent/Alert) - Deep Red
+            night: '#050A14', // Abyss (Background) - Deepest Navy
+            deep:  '#0A192F', // Trench (Surface) - Dark Blue
+            mid:   '#64FFDA', // Cyan (Primary) - Neon Teal
+            mist:  '#E6F1FF', // Ice (Text) - Ultra-Bright White-Blue
+            berry: '#FF6B6B', // Coral (Accent/Alert) - Soft Red
         },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
